@@ -1,0 +1,324 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* African Fintech Design System - Light Mode */
+    --background: 210 20% 98%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    /* Primary: Teal/Cyan (#0D9488) - Trust, Fintech feel */
+    --primary: 175 84% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Warm Gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 20%;
+
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent: Amber (#F59E0B) - Energy, African Warmth */
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success: Emerald (#10B981) - Payments */
+    --success: 151 55% 42%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning: Orange */
+    --warning: 25 95% 53%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 175 84% 32%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(175 84% 32%) 0%,
+      hsl(175 84% 40%) 100%
+    );
+    --gradient-accent: linear-gradient(
+      135deg,
+      hsl(38 92% 50%) 0%,
+      hsl(28 95% 55%) 100%
+    );
+    --gradient-dark: linear-gradient(
+      180deg,
+      hsl(220 25% 10%) 0%,
+      hsl(220 30% 6%) 100%
+    );
+    --gradient-card: linear-gradient(
+      145deg,
+      hsl(0 0% 100%) 0%,
+      hsl(220 20% 98%) 100%
+    );
+
+    --shadow-soft: 0 2px 8px -2px hsl(220 20% 10% / 0.08);
+    --shadow-medium: 0 4px 16px -4px hsl(220 20% 10% / 0.12);
+    --shadow-elevated: 0 8px 32px -8px hsl(220 20% 10% / 0.16);
+    --shadow-glow-primary: 0 0 24px hsl(175 84% 32% / 0.3);
+    --shadow-glow-accent: 0 0 24px hsl(38 92% 50% / 0.3);
+
+    --sidebar-background: 220 20% 98%;
+    --sidebar-foreground: 220 20% 20%;
+    --sidebar-primary: 175 84% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 94%;
+    --sidebar-accent-foreground: 220 20% 20%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 175 84% 32%;
+  }
+
+  .dark {
+    /* Dark Mode - Battery Saving, High Contrast */
+    --background: 220 25% 6%;
+    --foreground: 210 20% 98%;
+
+    --card: 220 25% 10%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 220 25% 10%;
+    --popover-foreground: 210 20% 98%;
+
+    /* Primary: High contrast Teal */
+    --primary: 175 84% 40%;
+    --primary-foreground: 220 25% 6%;
+
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 20% 14%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 25% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 151 55% 42%;
+    --success-foreground: 220 25% 6%;
+
+    --warning: 25 95% 53%;
+    --warning-foreground: 220 25% 6%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 175 84% 40%;
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(175 84% 40%) 0%,
+      hsl(175 84% 32%) 100%
+    );
+    --gradient-card: linear-gradient(
+      145deg,
+      hsl(220 25% 12%) 0%,
+      hsl(220 25% 8%) 100%
+    );
+
+    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
+    --shadow-glow-primary: 0 0 32px hsl(175 84% 40% / 0.25);
+    --shadow-glow-accent: 0 0 32px hsl(38 92% 50% / 0.25);
+
+    --sidebar-background: 220 25% 8%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 175 84% 40%;
+    --sidebar-primary-foreground: 220 25% 6%;
+    --sidebar-accent: 220 20% 14%;
+    --sidebar-accent-foreground: 210 20% 90%;
+    --sidebar-border: 220 20% 16%;
+    --sidebar-ring: 175 84% 40%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Outfit", system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Fintech Card Styles */
+  .card-elevated {
+    background-color: hsl(var(--card));
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: var(--shadow-medium);
+  }
+
+  .card-glass {
+    background-color: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.3);
+  }
+
+  /* Gradient Text */
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+  }
+
+  .text-gradient-accent {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-accent);
+  }
+
+  /* Touch-Friendly Buttons */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Status Indicators */
+  .status-online {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: hsl(var(--success));
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .status-offline {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background-color: hsl(var(--muted-foreground) / 0.3);
+  }
+
+  /* Loading Skeleton */
+  .skeleton {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background-color: hsl(var(--muted));
+    border-radius: 0.5rem;
+  }
+}
+
+@layer utilities {
+  /* Custom Animations */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out forwards;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: var(--shadow-glow-primary);
+    }
+    to {
+      box-shadow: 0 0 40px hsl(173 80% 32% / 0.5);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Safe Area Padding for Mobile */
+  .safe-area-inset {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Hide Scrollbar */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
