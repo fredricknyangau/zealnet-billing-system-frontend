@@ -20,7 +20,6 @@ import { Badge } from '@/components/ui/Badge'
 import { SkeletonText } from '@/components/ui/Skeleton'
 import { Modal } from '@/components/ui/Modal'
 import { formatCurrency, formatBytes, formatDuration, maskMacAddress, maskPhoneNumber } from '@/lib/utils'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useWebSocket } from '@/hooks/useWebSocket'
@@ -150,7 +149,6 @@ export const CustomerDashboard: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <LanguageSwitcher />
               <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout} icon={<LogOut className="h-4 w-4" />} />
             </div>

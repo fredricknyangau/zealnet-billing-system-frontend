@@ -20,7 +20,6 @@ import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import { Badge } from '@/components/ui/Badge'
 import { SkeletonText } from '@/components/ui/Skeleton'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { formatCurrency } from '@/lib/utils'
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
@@ -140,7 +139,6 @@ export const ResellerDashboard: React.FC = () => {
                 {activeTenantId ? tenants.find((t) => t.id === activeTenantId)?.name : 'Select Tenant'}
                 <ChevronDown className="h-4 w-4 ml-1" />
               </Button>
-              <LanguageSwitcher />
               <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={handleLogout} icon={<LogOut className="h-4 w-4" />} />
             </div>

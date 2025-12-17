@@ -24,7 +24,6 @@ import { Badge } from '@/components/ui/Badge'
 import { SkeletonText } from '@/components/ui/Skeleton'
 import { Input } from '@/components/ui/Input'
 import { formatCurrency } from '@/lib/utils'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import toast from 'react-hot-toast'
 import { AdminBilling } from './AdminBilling'
@@ -341,7 +340,6 @@ export const AdminDashboard: React.FC = () => {
           </nav>
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-2 mb-4">
-              <LanguageSwitcher />
               <ThemeToggle />
             </div>
             <Button variant="ghost" fullWidth onClick={handleLogout} icon={<LogOut className="h-4 w-4" />}>

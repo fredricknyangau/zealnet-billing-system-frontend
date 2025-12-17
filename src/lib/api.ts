@@ -1,8 +1,9 @@
 import axios, { AxiosInstance, AxiosError } from 'axios'
 import type { User, Plan, Subscription, Payment, Device, Session, Customer, NetworkMetrics, Tenant } from '@/types'
 import { mockApiResponses, mockUser, mockSubscription } from './mockData'
+import { getApiUrl } from './env'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.example.com'
+const API_BASE_URL = getApiUrl() // Validated environment variable
 const USE_MOCK_DATA = false // Forced disabled for production integration
 
 class ApiClient {
@@ -362,6 +363,75 @@ class ApiClient {
       currency: data.currency,
       isActive: true, // Backend doesn't have this yet
     }
+  }
+
+  // Password Reset endpoints
+  async requestPasswordReset(phone: string): Promise<{ success: boolean; messageId?: string }> {
+    const { data } = await this.client.post('/auth/password-reset/request', { phone })
+    return data
+  }
+
+  async resetPassword(phone: string, otp: string, newPassword: string): Promise<{ success: boolean }> {
+    const { data } = await this.client.post('/auth/password-reset/confirm', { phone, otp, newPassword })
+    return data
+  }
+
+  // Account Management endpoints
+  async deleteAccount(password: string): Promise<{ success: boolean }> {
+    const { data } = await this.client.post('/users/me/delete', { password })
+    return data
+  }
+
+  // Data Export endpoints (GDPR)
+  async requestDataExport(format: 'json' | 'csv' = 'json'): Promise<{ exportId: string }> {
+    const { data } = await this.client.post('/users/me/export', { format })
+    return data
+  }
+
+  async checkExportStatus(exportId: string): Promise<{ status: string; downloadUrl?: string }> {
+    const { data } = await this.client.get(`/users/me/export/${exportId}/status`)
+    return data
+  }
+
+  async downloadDataExport(exportId: string): Promise<Blob> {
+    const { data } = await this.client.get(`/users/me/export/${exportId}/download`, {
+      responseType: 'blob',
+    })
+    return data
+  }
+
+  // Invoice endpoints
+  async getInvoice(paymentId: string): Promise<any> {
+    const { data } = await this.client.get(`/invoices/${paymentId}`)
+    return data
+  }
+
+  async generateInvoicePDF(paymentId: string): Promise<Blob> {
+    const { data } = await this.client.get(`/invoices/${paymentId}/pdf`, {
+      responseType: 'blob',
+    })
+    return data
+  }
+
+  // Refund endpoints
+  async requestRefund(paymentId: string, reason: string, details: string): Promise<any> {
+    const { data } = await this.client.post('/refunds/request', { paymentId, reason, details })
+    return data
+  }
+
+  async getRefundRequests(): Promise<any[]> {
+    const { data } = await this.client.get('/refunds/my-requests')
+    return data
+  }
+
+  async getAdminRefundRequests(): Promise<any[]> {
+    const { data } = await this.client.get('/admin/refunds')
+    return data
+  }
+
+  async updateRefundStatus(requestId: string, status: string, notes: string): Promise<any> {
+    const { data} = await this.client.put(`/admin/refunds/${requestId}`, { status, notes })
+    return data
   }
 }
 
