@@ -20,7 +20,6 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
   const [format, setFormat] = useState<ExportFormat>('json')
   const [status, setStatus] = useState<ExportStatus>('idle')
   const [exportId, setExportId] = useState<string | null>(null)
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
 
   const handleRequestExport = async () => {
     setStatus('requesting')
@@ -47,7 +46,6 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
         const response = await api.checkExportStatus(id)
         
         if (response.status === 'completed' && response.downloadUrl) {
-          setDownloadUrl(response.downloadUrl)
           setStatus('ready')
           toast.success('Your data export is ready!')
         } else if (response.status === 'failed') {
@@ -92,7 +90,6 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
     setFormat('json')
     setStatus('idle')
     setExportId(null)
-    setDownloadUrl(null)
     onClose()
   }
 

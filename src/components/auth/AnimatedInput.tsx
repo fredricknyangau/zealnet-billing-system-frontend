@@ -1,16 +1,19 @@
 import React, { useState, forwardRef } from 'react'
 import { Eye, EyeOff, Check, AlertCircle } from 'lucide-react'
 
-interface AnimatedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface AnimatedInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   label: string
   error?: string
   success?: boolean
   leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
   showPasswordToggle?: boolean
+  // Support both onChange patterns
+  onChange?: ((value: string) => void) | React.ChangeEventHandler<HTMLInputElement>
 }
 
 export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
-  ({ label, error, success, leftIcon, showPasswordToggle, type, className = '', ...props }, ref) => {
+  ({ label, error, success, leftIcon, rightIcon, showPasswordToggle, type, className = '', onChange, ...props }, ref) => {
     const [isFocused, setIsFocused] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [hasValue, setHasValue] = useState(false)
@@ -19,7 +22,20 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setHasValue(e.target.value.length > 0)
-      props.onChange?.(e)
+      
+      if (onChange) {
+        // Try calling with value first (for setter functions)
+        // If that doesn't work, call with event (for standard handlers)
+        const onChangeHandler = onChange as any
+        if (onChangeHandler.length === 1) {
+          // Function expects 1 argument - could be value or event
+          // Check if it's a simple setter by trying with the value
+          onChangeHandler(e.target.value)
+        } else {
+          // Standard event handler
+          onChangeHandler(e)
+        }
+      }
     }
 
     return (
@@ -47,8 +63,8 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 ${leftIcon ? 'pl-12' : ''} ${
-              showPasswordToggle || success ? 'pr-12' : ''
+            className={`w-full px-4 ${leftIcon ? 'pl-14' : ''} ${
+              showPasswordToggle || success || rightIcon ? 'pr-12' : ''
             } pt-6 pb-2 bg-transparent text-foreground placeholder-transparent focus:outline-none ${className}`}
             placeholder={label}
             onFocus={() => setIsFocused(true)}
@@ -59,7 +75,7 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
 
           {/* Floating label */}
           <label
-            className={`absolute left-4 ${leftIcon ? 'left-12' : ''} transition-all duration-300 pointer-events-none ${
+            className={`absolute left-4 ${leftIcon ? 'left-14' : ''} transition-all duration-300 pointer-events-none ${
               isFocused || hasValue || props.value
                 ? 'top-2 text-xs text-muted-foreground'
                 : 'top-1/2 -translate-y-1/2 text-base text-muted-foreground/60'
@@ -72,6 +88,11 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
             {success && (
               <Check className="h-5 w-5 text-success animate-scale-in" />
+            )}
+            {rightIcon && (
+              <div className="text-muted-foreground">
+                {rightIcon}
+              </div>
             )}
             {showPasswordToggle && (
               <button

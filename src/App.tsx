@@ -17,6 +17,7 @@ const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard').then(mo
 // ResellerDashboard is a named export, so we handle it similarly
 const ResellerDashboard = React.lazy(() => import('./pages/ResellerDashboard').then(module => ({ default: module.ResellerDashboard })))
 const LoginPage = React.lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })))
+const SignupPage = React.lazy(() => import('./pages/SignupPage').then(module => ({ default: module.SignupPage })))
 const ChatSimulator = React.lazy(() => import('./pages/ChatSimulator').then(module => ({ default: module.ChatSimulator })))
 // Static Pages
 const AboutPage = React.lazy(() => import('./pages/AboutPage').then(module => ({ default: module.AboutPage })))
@@ -35,6 +36,8 @@ const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage').t
 const SettingsPage = React.lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })))
 // Help Page
 const HelpPage = React.lazy(() => import('./pages/HelpPage').then(module => ({ default: module.HelpPage })))
+// Top Up Page
+const TopUpPage = React.lazy(() => import('./pages/TopUpPage'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,6 +99,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/portal" element={<CaptivePortal />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/chat-simulator" element={<ChatSimulator />} />
@@ -126,6 +130,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['customer']}>
                   <CustomerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/topup"
+              element={
+                <ProtectedRoute allowedRoles={['customer']}>
+                  <TopUpPage />
                 </ProtectedRoute>
               }
             />

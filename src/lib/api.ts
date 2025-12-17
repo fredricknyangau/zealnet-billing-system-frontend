@@ -13,29 +13,18 @@ class ApiClient {
     this.client = axios.create({
       baseURL: API_BASE_URL,
       timeout: 30000,
+      withCredentials: true,  // Enable sending cookies
       headers: {
         'Content-Type': 'application/json',
       },
     })
-
-    // Request interceptor for auth token
-    this.client.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('auth_token')
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-      },
-      (error) => Promise.reject(error)
-    )
 
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem('auth_token')
+          // Cookie expired or invalid, redirect to login
           window.location.href = '/login'
         }
         return Promise.reject(error)
@@ -53,7 +42,7 @@ class ApiClient {
     return data
   }
 
-  async verifyOTP(phone: string, otp: string): Promise<{ token: string; user: User }> {
+  async verifyOTP(phone: string, otp: string): Promise<{ user: User; message: string }> {
     if (USE_MOCK_DATA) {
       await delay(800)
       // Determine role based on phone number for testing
@@ -64,9 +53,24 @@ class ApiClient {
         role = 'reseller'
       }
       const user = { ...mockUser, phone, role }
-      return { token: 'mock-jwt-token-' + Date.now(), user }
+      return { user, message: 'Login successful' }
     }
     const { data } = await this.client.post('/auth/verify', { phone, otp })
+    return data
+  }
+
+  async loginWithPassword(phone: string, password: string): Promise<{ user: User; message: string }> {
+    const { data } = await this.client.post('/auth/login', { phone, password })
+    return data
+  }
+
+  async signup(name: string, email: string | undefined, phone: string, password: string): Promise<{ user: User; message: string }> {
+    const { data } = await this.client.post('/auth/signup', { name, email, phone, password })
+    return data
+  }
+
+  async logout(): Promise<{ message: string }> {
+    const { data } = await this.client.post('/auth/logout')
     return data
   }
 
@@ -338,6 +342,10 @@ class ApiClient {
     
     const { data } = await this.client.put(`/tenants/${tenantId}`, payload)
     return this.mapTenantResponse(data)
+  }
+
+  async deleteTenant(tenantId: string): Promise<void> {
+    await this.client.delete(`/tenants/${tenantId}`)
   }
 
   async deletePlan(planId: string): Promise<void> {

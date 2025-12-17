@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { PageLayout } from '@/components/PageLayout'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
 import { Search, ChevronDown, ChevronUp, Mail, Phone, MessageCircle } from 'lucide-react'
 
 interface FAQItem {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
-import { Download, Printer, Mail } from 'lucide-react'
+import { Download, Printer } from 'lucide-react'
 import { api } from '@/lib/api'
 import { generateInvoicePDF } from '@/lib/generateInvoicePDF'
 import toast from 'react-hot-toast'

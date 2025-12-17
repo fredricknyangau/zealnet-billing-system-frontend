@@ -28,8 +28,7 @@ export const ContactPage: React.FC = () => {
       message: sanitizeText(formData.message)
     }
     
-    // Simulate form submission (in production, send sanitizedData to API)
-    console.log('Sanitized form data:', sanitizedData) // In production, send to API
+    // TODO: Send sanitizedData to backend API
     await new Promise(resolve => setTimeout(resolve, 1500))
     
     toast.success('Message sent successfully! We\'ll get back to you soon.')

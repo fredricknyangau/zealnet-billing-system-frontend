@@ -69,6 +69,13 @@ export default defineConfig({
   build: {
     target: 'es2015',
     cssCodeSplit: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,  // Remove console.log in production
+        drop_debugger: true,  // Remove debugger statements
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -82,7 +89,14 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    host: true
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   }
 })
 

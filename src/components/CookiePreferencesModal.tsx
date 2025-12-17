@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal } from './ui/Modal'
 import { Button } from './ui/Button'
-import { setConsentPreferences, type CookiePreferences } from '@/lib/cookieConsent'
+import { type CookiePreferences } from '@/lib/cookieConsent'
 
 interface CookiePreferencesModalProps {
   isOpen: boolean

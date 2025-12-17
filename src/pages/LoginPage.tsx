@@ -2,25 +2,63 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { Smartphone, Key, Loader2, CheckCircle2 } from 'lucide-react'
+import { Smartphone, Lock, Eye, EyeOff, CheckCircle2, Shield, Key } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { AnimatedInput } from '@/components/auth/AnimatedInput'
-import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
+
+type AuthMethod = 'password' | 'otp'
 
 export const LoginPage: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
+  
+  // Auth method selection
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('password')
+  
+  // Form state
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [otp, setOtp] = useState('')
-  const [showOtpInput, setShowOtpInput] = useState(false)
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  
+  // OTP state
+  const [showOtpInput, setShowOtpInput] = useState(false)
+  const [otp, setOtp] = useState('')
 
+  // Password login mutation
+  const passwordLogin = useMutation({
+    mutationFn: async () => {
+      return await api.loginWithPassword(phoneNumber, password)
+    },
+    onSuccess: (data) => {
+      setAuth(data.user, '') // No token needed, using cookies
+      toast.success('Login successful!', {
+        icon: '✨',
+        style: {
+          background: 'rgba(16, 185, 129, 0.1)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(16, 185, 129, 0.2)',
+          color: '#10b981',
+        },
+      })
+      // Redirect based on user role
+      const redirectPath = data.user.role === 'admin' ? '/admin' 
+        : data.user.role === 'reseller' ? '/reseller' 
+        : '/dashboard'
+      navigate(redirectPath)
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || 'Invalid credentials')
+    },
+  })
+
+  // OTP request mutation
   const requestOTP = useMutation({
     mutationFn: (phone: string) => api.loginWithPhone(phone),
     onSuccess: () => {
@@ -40,11 +78,12 @@ export const LoginPage: React.FC = () => {
     },
   })
 
+  // OTP verification mutation
   const verifyOTP = useMutation({
     mutationFn: ({ phone, otp }: { phone: string; otp: string }) => api.verifyOTP(phone, otp),
     onSuccess: (data) => {
-      setAuth(data.user, data.token)
-      toast.success(t('auth.login'), {
+      setAuth(data.user, '') // No token needed, using cookies
+      toast.success('Login successful!', {
         icon: '✨',
         style: {
           background: 'rgba(16, 185, 129, 0.1)',
@@ -53,185 +92,233 @@ export const LoginPage: React.FC = () => {
           color: '#10b981',
         },
       })
-      
-      // Show success animation before redirect
-      setTimeout(() => {
-        if (data.user.role === 'admin') {
-          navigate('/admin')
-        } else if (data.user.role === 'reseller') {
-          navigate('/reseller')
-        } else {
-          navigate('/dashboard')
-        }
-      }, 500)
+      // Redirect based on user role
+      const redirectPath = data.user.role === 'admin' ? '/admin' 
+        : data.user.role === 'reseller' ? '/reseller' 
+        : '/dashboard'
+      navigate(redirectPath)
     },
     onError: () => {
-      toast.error('Invalid OTP')
+      toast.error('Invalid OTP code')
     },
   })
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (phoneNumber.trim()) {
-      requestOTP.mutate(phoneNumber.trim())
+    
+    if (!phoneNumber.trim()) {
+      toast.error('Please enter your phone number')
+      return
+    }
+
+    if (authMethod === 'password') {
+      if (!password.trim()) {
+        toast.error('Please enter your password')
+        return
+      }
+      passwordLogin.mutate()
+    } else {
+      requestOTP.mutate(phoneNumber)
     }
   }
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
+  const handleVerifyOtp = (e: React.FormEvent) => {
     e.preventDefault()
-    if (otp.trim() && phoneNumber.trim()) {
-      verifyOTP.mutate({ phone: phoneNumber.trim(), otp: otp.trim() })
+    if (!otp || otp.length < 4) {
+      toast.error('Please enter the verification code')
+      return
     }
+    verifyOTP.mutate({ phone: phoneNumber, otp })
   }
 
-  return (
-    <AuthLayout
-      title="Welcome Back"
-      subtitle="Sign in to access your WiFi billing dashboard"
-    >
-      <AuthCard>
-        {!showOtpInput ? (
-          <form onSubmit={handlePhoneSubmit} className="space-y-6">
-            {/* Phone Input */}
-            <AnimatedInput
-              type="tel"
-              label={t('auth.phoneNumber')}
-              placeholder="+254 712 345 678"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              leftIcon={<Smartphone className="h-5 w-5" />}
-              disabled={requestOTP.isPending}
-              autoFocus
-              required
-            />
-
-            {/* Remember Me */}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-white/20 bg-white/10 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer"
-              />
-              <label htmlFor="remember" className="ml-2 text-sm text-muted-foreground cursor-pointer">
-                Remember me
-              </label>
+  // OTP Verification Screen
+  if (showOtpInput) {
+    return (
+      <AuthLayout>
+        <AuthCard>
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-primary" />
             </div>
+            <h1 className="text-3xl font-bold mb-2">Verify Your Phone</h1>
+            <p className="text-muted-foreground">
+              Enter the 6-digit code sent to {phoneNumber}
+            </p>
+          </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              fullWidth
-              disabled={!phoneNumber.trim() || requestOTP.isPending}
-              className="relative overflow-hidden group bg-primary/20 hover:bg-primary/30 border border-primary/30 text-foreground font-semibold py-3 rounded-xl transition-all duration-300"
-            >
-              {requestOTP.isPending ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Sending OTP...
-                </>
-              ) : (
-                <>
-                  Continue
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                </>
-              )}
-            </Button>
-
-            {/* Social Auth */}
-            <SocialAuthButtons />
-
-            {/* Forgot Password */}
-            <div className="text-center">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleOtpSubmit} className="space-y-6">
-            {/* Success Message */}
-            <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-              <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
-              <p className="text-sm text-muted-foreground">
-                OTP sent to <span className="font-semibold text-foreground">{phoneNumber}</span>
-              </p>
-            </div>
-
-            {/* OTP Input */}
+          <form onSubmit={handleVerifyOtp} className="space-y-6">
             <AnimatedInput
               type="text"
-              label={t('auth.enterOtp')}
-              placeholder="Enter 6-digit OTP"
+              placeholder="Enter 6-digit code"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-              leftIcon={<Key className="h-5 w-5" />}
+              onChange={setOtp}
+              leftIcon={<Lock className="h-5 w-5" />}
               maxLength={6}
-              disabled={verifyOTP.isPending}
-              success={otp.length === 6}
               autoFocus
-              required
             />
 
-            {/* Verify Button */}
             <Button
               type="submit"
               fullWidth
-              disabled={!otp.trim() || otp.length !== 6 || verifyOTP.isPending}
-              className="relative overflow-hidden group bg-white/20 hover:bg-white/30 border border-white/30 text-white font-semibold py-3 rounded-xl transition-all duration-300"
+              isLoading={verifyOTP.isPending}
+              icon={<CheckCircle2 className="h-5 w-5" />}
             >
-              {verifyOTP.isPending ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Verifying...
-                </>
-              ) : (
-                <>
-                  {t('auth.verify')}
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                </>
-              )}
+              Verify & Sign In
             </Button>
 
-            {/* Change Number */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowOtpInput(false)
-                setOtp('')
-              }}
-              className="w-full text-sm text-white/70 hover:text-white transition-colors"
-            >
-              Change phone number
-            </button>
-
-            {/* Resend OTP */}
             <div className="text-center">
               <button
                 type="button"
                 onClick={() => requestOTP.mutate(phoneNumber)}
                 disabled={requestOTP.isPending}
-                className="text-sm text-white/70 hover:text-white transition-colors disabled:opacity-50"
+                className="text-sm text-primary hover:underline disabled:opacity-50"
               >
-                Didn't receive OTP? <span className="font-semibold">Resend</span>
+                {requestOTP.isPending ? 'Sending...' : 'Resend Code'}
               </button>
             </div>
-          </form>
-        )}
 
-        {/* Sign Up Link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-foreground font-semibold hover:underline">
-              Sign up
-            </Link>
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOtpInput(false)
+                  setOtp('')
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                ← Change phone number
+              </button>
+            </div>
+
+            {/* Signup Link */}
+            <div className="text-center text-sm pt-4 border-t border-border">
+              <span className="text-muted-foreground">Don't have an account? </span>
+              <Link to="/signup" className="text-primary hover:underline font-medium">
+                Sign up
+              </Link>
+            </div>
+          </form>
+        </AuthCard>
+      </AuthLayout>
+    )
+  }
+
+  // Main Login Screen
+  return (
+    <AuthLayout>
+      <AuthCard>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
+          <p className="text-muted-foreground">
+            Sign in to access your account
           </p>
         </div>
+
+        {/* Authentication Method Toggle */}
+        <div className="flex gap-2 p-1 bg-muted rounded-lg mb-6">
+          <button
+            type="button"
+            onClick={() => setAuthMethod('password')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
+              authMethod === 'password'
+                ? 'bg-background shadow-sm text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Key className="h-4 w-4" />
+            Password
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuthMethod('otp')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
+              authMethod === 'otp'
+                ? 'bg-background shadow-sm text-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Smartphone className="h-4 w-4" />
+            OTP
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Phone Number */}
+          <AnimatedInput
+            type="tel"
+            label="Phone Number"
+            placeholder="+254 700 000 000"
+            value={phoneNumber}
+            onChange={setPhoneNumber}
+            leftIcon={<Smartphone className="h-5 w-5" />}
+            required
+          />
+
+          {/* Password Field (only for password auth) */}
+          {authMethod === 'password' && (
+            <AnimatedInput
+              type={showPassword ? 'text' : 'password'}
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={setPassword}
+              leftIcon={<Lock className="h-5 w-5" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </button>
+              }
+              required
+            />
+          )}
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
+              />
+              <span className="text-sm text-muted-foreground">Remember me</span>
+            </label>
+            {authMethod === 'password' && (
+              <Link
+                to="/forgot-password"
+                className="text-sm text-primary hover:underline"
+              >
+                Forgot password?
+              </Link>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            fullWidth
+            isLoading={authMethod === 'password' ? passwordLogin.isPending : requestOTP.isPending}
+            icon={authMethod === 'password' ? <Key className="h-5 w-5" /> : <Smartphone className="h-5 w-5" />}
+          >
+            {authMethod === 'password' ? 'Sign In' : 'Send OTP'}
+          </Button>
+
+          {/* Signup Link */}
+          <div className="text-center text-sm pt-4 border-t border-border">
+            <span className="text-muted-foreground">Don't have an account? </span>
+            <Link to="/signup" className="text-primary hover:underline font-medium">
+              Sign up
+            </Link>
+          </div>
+        </form>
       </AuthCard>
     </AuthLayout>
   )

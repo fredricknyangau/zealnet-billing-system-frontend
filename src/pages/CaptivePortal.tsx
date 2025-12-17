@@ -9,7 +9,6 @@ import {
   Clock, 
   Database, 
   Zap, 
-  Calendar, 
   Download, 
   Upload,
   CheckCircle2,
@@ -34,6 +33,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { QRScanner } from '@/components/portal/QRScanner'
 import { TermsModal } from '@/components/portal/TermsModal'
 import { ChatbotWidget } from '@/components/ai/ChatbotWidget'
+import MobileMoneyPayment from '@/components/payments/MobileMoneyPayment'
 
 import toast from 'react-hot-toast'
 
@@ -268,69 +268,35 @@ const PlanComparison: React.FC<{ plans: Plan[]; onClose: () => void }> = ({ plan
 
 export const CaptivePortal: React.FC = () => {
   const { t } = useTranslation()
-  const [phoneNumber, setPhoneNumber] = useState('')
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
-  const [paymentMethod] = useState<'mpesa' | 'mtn' | 'airtel'>('mpesa')
   const [showScanner, setShowScanner] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
   const [showComparison, setShowComparison] = useState(false)
-  const [showChat, setShowChat] = useState(false)
+  const [showPayment, setShowPayment] = useState(false)
 
   const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ['plans'],
     queryFn: () => api.getPlans(),
   })
 
-  const initiatePayment = useMutation({
-    mutationFn: ({ planId, phone, method }: { planId: string; phone: string; method: 'mpesa' | 'mtn' | 'airtel' }) => {
-      const plan = plans?.find((p) => p.id === planId)
-      if (!plan) throw new Error('Plan not found')
-      
-      if (method === 'mtn') {
-        return api.initiateMTNPayment(plan.price, phone)
-      } else if (method === 'airtel') {
-        return api.initiateAirtelPayment(plan.price, phone)
-      } else {
-        return api.initiateMpesaPayment(plan.price, phone)
-      }
-    },
-    onSuccess: async (data) => {
-      toast.success('Payment initiated. Check your phone.')
-      // Poll for payment status
-      const checkStatus = setInterval(async () => {
-        try {
-          const payment = await api.checkPaymentStatus(data.checkoutRequestId)
-          if (payment.status === 'completed') {
-            clearInterval(checkStatus)
-            toast.success('Payment successful! Please log in.')
-            setTimeout(() => {
-              window.location.href = '/login'
-            }, 1500)
-          } else if (payment.status === 'failed') {
-            clearInterval(checkStatus)
-            toast.error(t('portal.paymentFailed'))
-          }
-        } catch (error) {
-          // Continue polling
-        }
-      }, 3000)
-
-      // Stop polling after 2 minutes
-      setTimeout(() => clearInterval(checkStatus), 120000)
-    },
-    onError: () => {
-      toast.error(t('portal.paymentFailed'))
-    },
-  })
-
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId)
+    setShowPayment(true)
   }
 
-  const handlePay = () => {
-    if (selectedPlan && phoneNumber.trim()) {
-      initiatePayment.mutate({ planId: selectedPlan, phone: phoneNumber.trim(), method: paymentMethod })
-    }
+  const handlePaymentSuccess = (paymentId: string) => {
+    console.log('Payment successful:', paymentId)
+    setShowPayment(false)
+    setSelectedPlan(null)
+    toast.success('Payment successful! Redirecting to login...')
+    setTimeout(() => {
+      window.location.href = '/login'
+    }, 2000)
+  }
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false)
+    setSelectedPlan(null)
   }
 
   const selectedPlanData = plans?.find((p) => p.id === selectedPlan)
@@ -534,131 +500,6 @@ export const CaptivePortal: React.FC = () => {
           </>
         )}
 
-        {/* Payment Section */}
-        {selectedPlan && selectedPlanData && (
-          <Card className="mt-6">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Complete Payment</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedPlan(null)}>
-                  Change Plan
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Selected Plan Summary */}
-              <div className="p-5 bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl border border-primary/20">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-foreground mb-1">
-                      {selectedPlanData.name}
-                    </h3>
-                    <Badge variant={getPlanTypeBadge(selectedPlanData.type).variant} size="sm">
-                      {getPlanTypeBadge(selectedPlanData.type).label}
-                    </Badge>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Total</div>
-                    <div className="text-2xl font-bold text-primary">
-                      {formatCurrency(selectedPlanData.price, selectedPlanData.currency)}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Plan Features Summary */}
-                <div className="grid grid-cols-2 gap-3">
-                  {selectedPlanData.duration && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span>{formatDuration(selectedPlanData.duration)}</span>
-                    </div>
-                  )}
-                  {selectedPlanData.dataLimit && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Database className="h-4 w-4 text-success" />
-                      <span>{formatBytes(selectedPlanData.dataLimit)}</span>
-                    </div>
-                  )}
-                  {(selectedPlanData.downloadSpeed || selectedPlanData.speedLimit) && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Download className="h-4 w-4 text-accent" />
-                      <span>{selectedPlanData.downloadSpeed || selectedPlanData.speedLimit} Mbps</span>
-                    </div>
-                  )}
-                  {selectedPlanData.uploadSpeed && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Upload className="h-4 w-4 text-info" />
-                      <span>{selectedPlanData.uploadSpeed} Mbps</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Payment Methods */}
-              <div className="space-y-4">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Pay with Mobile Money</span>
-                  </div>
-                </div>
-
-                <Input
-                  type="tel"
-                  placeholder="Phone number for M-Pesa"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  leftIcon={<Smartphone className="h-5 w-5" />}
-                  disabled={initiatePayment.isPending}
-                  autoFocus
-                />
-                
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Or Use Voucher</span>
-                  </div>
-                </div>
-                
-                <Button 
-                  variant="outline" 
-                  fullWidth 
-                  onClick={() => setShowScanner(true)}
-                  icon={<QrCode className="h-4 w-4" />}
-                >
-                  Scan Voucher QR Code
-                </Button>
-              </div>
-
-              {/* Buy Button */}
-              <div className="pt-2">
-                <Button
-                  fullWidth
-                  onClick={handlePay}
-                  isLoading={initiatePayment.isPending}
-                  disabled={!phoneNumber.trim()}
-                  icon={<CreditCard className="h-5 w-5" />}
-                  className="h-12 text-base"
-                >
-                  {initiatePayment.isPending ? 'Processing...' : 'Buy Now'}
-                </Button>
-              </div>
-              
-              {/* Terms */}
-              <p className="text-xs text-center text-muted-foreground">
-                By purchasing, you agree to our{' '}
-                <button onClick={() => setShowTerms(true)} className="text-primary hover:underline underline-offset-4 font-semibold">
-                  Terms & Conditions
-                </button>
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
         {/* FAQs Section */}
         {!selectedPlan && (
           <Card className="mt-6">
@@ -689,14 +530,6 @@ export const CaptivePortal: React.FC = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     Not sure which plan is right for you? Our AI assistant can help you find the perfect plan based on your usage.
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowChat(true)}
-                    icon={<MessageCircle className="h-4 w-4" />}
-                  >
-                    Chat with AI Assistant
-                  </Button>
                   <div className="text-xs text-muted-foreground space-y-1 mt-4">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-3 w-3 text-success" />
@@ -748,6 +581,15 @@ export const CaptivePortal: React.FC = () => {
       )}
       
       <ChatbotWidget />
+
+      {/* Mobile Money Payment Modal */}
+      {showPayment && selectedPlanData && (
+        <MobileMoneyPayment
+          amount={selectedPlanData.price}
+          onSuccess={handlePaymentSuccess}
+          onCancel={handlePaymentCancel}
+        />
+      )}
     </div>
   )
 }
