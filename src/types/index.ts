@@ -20,10 +20,18 @@ export interface Plan {
   currency: string
   duration?: number // in seconds
   dataLimit?: number // in bytes
-  speedLimit?: number // in Mbps
+  uploadSpeed?: number // in Mbps (from upload_speed_kbps)
+  downloadSpeed?: number // in Mbps (from download_speed_kbps)
+  speedLimit?: number // in Mbps (deprecated, use uploadSpeed/downloadSpeed)
   isActive: boolean
   features: string[]
+  testimonials?: Array<{
+    author: string
+    rating: number
+    comment: string
+  }>
 }
+
 
 export interface Subscription {
   id: string
