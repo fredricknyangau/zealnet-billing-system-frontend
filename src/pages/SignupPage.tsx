@@ -1,24 +1,22 @@
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { 
   User, 
   Mail, 
-  Smartphone, 
   Lock, 
   Eye, 
   EyeOff, 
   CheckCircle2, 
   XCircle,
-  Loader2,
-  Shield
+  Loader2
 } from 'lucide-react'
 import { api } from '@/lib/api'
-import { useAuthStore } from '@/stores/authStore'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { AnimatedInput } from '@/components/auth/AnimatedInput'
+import { PhoneInput } from '@/components/ui/PhoneInput'
+import { validateE164 } from '@/lib/countries'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 
@@ -29,9 +27,7 @@ interface PasswordStrength {
 }
 
 export const SignupPage: React.FC = () => {
-  const { t } = useTranslation()
   const navigate = useNavigate()
-  const { setAuth } = useAuthStore()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -74,7 +70,7 @@ export const SignupPage: React.FC = () => {
       toast.error('Please enter a valid email address')
       return false
     }
-    if (!formData.phone.trim() || !/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/\s/g, ''))) {
+    if (!formData.phone.trim() || !validateE164(formData.phone)) {
       toast.error('Please enter a valid phone number')
       return false
     }
@@ -110,7 +106,7 @@ export const SignupPage: React.FC = () => {
     mutationFn: async () => {
       return await api.signup(formData.name, formData.email, formData.phone, formData.password)
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Don't auto-login, redirect to login page
       toast.success('Account created successfully! Please log in.', {
         icon: '✨',
@@ -149,7 +145,7 @@ export const SignupPage: React.FC = () => {
   // Removed OTP verification screen - direct signup now
 
   return (
-    <AuthLayout>
+    <AuthLayout title="Create Your Account">
       <AuthCard>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Create Your Account</h1>
@@ -158,7 +154,7 @@ export const SignupPage: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
           {/* Full Name */}
           <AnimatedInput
             type="text"
@@ -184,15 +180,13 @@ export const SignupPage: React.FC = () => {
           />
 
           {/* Phone Number */}
-          <AnimatedInput
-            type="tel"
+          <PhoneInput
             label="Phone Number"
-            placeholder="+254 700 000 000"
+            placeholder="712 345 678"
             value={formData.phone}
             onChange={handleChange('phone')}
-            leftIcon={<Smartphone className="h-5 w-5" />}
-            autoComplete="off"
             required
+            defaultCountry="KE"
           />
 
           {/* Password */}
@@ -300,7 +294,7 @@ export const SignupPage: React.FC = () => {
                 )}
               </button>
             }
-            success={formData.confirmPassword && formData.password === formData.confirmPassword}
+            success={!!(formData.confirmPassword && formData.password === formData.confirmPassword)}
             error={formData.confirmPassword && formData.password !== formData.confirmPassword ? 'Passwords do not match' : undefined}
             required
           />

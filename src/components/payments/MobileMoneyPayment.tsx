@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Smartphone, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { X, Smartphone, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { PhoneInput } from '../ui/PhoneInput';
+import { validateE164 } from '@/lib/countries';
 
 interface MobileMoneyPaymentProps {
   amount: number;
@@ -33,8 +35,8 @@ interface PaymentStatusResponse {
 }
 
 export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: MobileMoneyPaymentProps) {
-  const [provider, setProvider] = useState<PaymentProvider>('mpesa_ke');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState(''); // E.164 format
+  const [phoneError, setPhoneError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [status, setStatus] = useState<PaymentStatus | null>(null);
@@ -73,59 +75,48 @@ export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: Mobi
     return () => clearInterval(pollInterval);
   }, [paymentId, status, onSuccess]);
 
-  const formatPhoneNumber = (value: string): string => {
-    // Remove all non-numeric characters
-    const cleaned = value.replace(/\D/g, '');
+  const handlePhoneChange = (value: string) => {
+    setPhoneNumber(value);
+    setPhoneError('');
     
-    // Auto-format based on provider
-    if (provider === 'mpesa_ke') {
-      // Kenya: 254XXXXXXXXX
-      if (cleaned.startsWith('0')) {
-        return '254' + cleaned.substring(1);
-      } else if (cleaned.startsWith('254')) {
-        return cleaned;
-      } else if (cleaned.startsWith('7') || cleaned.startsWith('1')) {
-        return '254' + cleaned;
-      }
-    } else if (provider === 'mpesa_tz') {
-      // Tanzania: 255XXXXXXXXX
-      if (cleaned.startsWith('0')) {
-        return '255' + cleaned.substring(1);
-      } else if (cleaned.startsWith('255')) {
-        return cleaned;
-      } else if (cleaned.startsWith('6') || cleaned.startsWith('7')) {
-        return '255' + cleaned;
-      }
+    // Validate M-Pesa compatibility
+    if (value && !value.startsWith('+254') && !value.startsWith('+255')) {
+      setPhoneError('Only Kenyan (+254) and Tanzanian (+255) numbers are supported for M-Pesa');
     }
-    
-    return cleaned;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhoneNumber(formatted);
   };
 
   const validatePhoneNumber = (): boolean => {
-    if (provider === 'mpesa_ke') {
-      // Kenya: 254[17]XXXXXXXX (12 digits total)
-      return /^254[17]\d{8}$/.test(phoneNumber);
-    } else if (provider === 'mpesa_tz') {
-      // Tanzania: 255[67]XXXXXXXX (12 digits total)
-      return /^255[67]\d{8}$/.test(phoneNumber);
+    if (!phoneNumber) {
+      setPhoneError('Phone number is required');
+      return false;
     }
-    return false;
+
+    if (!validateE164(phoneNumber)) {
+      setPhoneError('Please enter a valid phone number');
+      return false;
+    }
+
+    // M-Pesa only supports Kenya and Tanzania
+    if (!phoneNumber.startsWith('+254') && !phoneNumber.startsWith('+255')) {
+      setPhoneError('Only Kenyan and Tanzanian numbers are supported');
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setMessage('');
+    setPhoneError('');
 
     if (!validatePhoneNumber()) {
-      setError('Please enter a valid phone number');
       return;
     }
+
+    // Determine provider from phone number
+    const provider: PaymentProvider = phoneNumber.startsWith('+254') ? 'mpesa_ke' : 'mpesa_tz';
 
     setIsProcessing(true);
 
@@ -236,62 +227,16 @@ export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: Mobi
               </p>
             </div>
 
-            {/* Provider Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Select Provider
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setProvider('mpesa_ke')}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    provider === 'mpesa_ke'
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-2">
-                    <Smartphone className="w-5 h-5" />
-                    <span className="font-semibold">M-Pesa KE</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setProvider('mpesa_tz')}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    provider === 'mpesa_tz'
-                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-2">
-                    <Smartphone className="w-5 h-5" />
-                    <span className="font-semibold">M-Pesa TZ</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Phone Number Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                placeholder={provider === 'mpesa_ke' ? '254712345678' : '255612345678'}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {provider === 'mpesa_ke' 
-                  ? 'Enter Kenyan number (e.g., 254712345678)'
-                  : 'Enter Tanzanian number (e.g., 255612345678)'}
-              </p>
-            </div>
+            {/* Phone Number Input with Country Selector */}
+            <PhoneInput
+              label="Phone Number"
+              placeholder="712 345 678"
+              value={phoneNumber}
+              onChange={handlePhoneChange}
+              error={phoneError}
+              required
+              defaultCountry="KE"
+            />
 
             {/* Error Message */}
             {error && (

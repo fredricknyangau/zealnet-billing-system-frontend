@@ -54,7 +54,7 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
         >
           {/* Left icon */}
           {leftIcon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
               {leftIcon}
             </div>
           )}
@@ -63,7 +63,7 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 ${leftIcon ? 'pl-14' : ''} ${
+            className={`w-full px-4 ${leftIcon ? 'pl-12' : ''} ${
               showPasswordToggle || success || rightIcon ? 'pr-12' : ''
             } pt-6 pb-2 bg-transparent text-foreground placeholder-transparent focus:outline-none ${className}`}
             placeholder={label}
@@ -75,7 +75,7 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
 
           {/* Floating label */}
           <label
-            className={`absolute left-4 ${leftIcon ? 'left-14' : ''} transition-all duration-300 pointer-events-none ${
+            className={`absolute left-4 ${leftIcon ? 'left-12' : ''} transition-all duration-300 pointer-events-none ${
               isFocused || hasValue || props.value
                 ? 'top-2 text-xs text-muted-foreground'
                 : 'top-1/2 -translate-y-1/2 text-base text-muted-foreground/60'

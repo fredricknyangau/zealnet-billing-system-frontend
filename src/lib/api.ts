@@ -441,6 +441,63 @@ class ApiClient {
     const { data} = await this.client.put(`/admin/refunds/${requestId}`, { status, notes })
     return data
   }
+
+  // New Analytics Endpoints
+  async getChurnAnalysis(months = 6): Promise<any> {
+    const { data } = await this.client.get('/admin/analytics/churn', { params: { months } })
+    return data
+  }
+
+  async getUsageHeatmap(days = 7): Promise<any> {
+    const { data } = await this.client.get('/admin/analytics/usage-heatmap', { params: { days } })
+    return data
+  }
+
+  async getRevenueBreakdown(days = 30): Promise<any> {
+    const { data } = await this.client.get('/admin/analytics/revenue-breakdown', { params: { days } })
+    return data
+  }
+
+  // Device & Security Endpoints
+  async getUserDevices(): Promise<Device[]> {
+    const { data } = await this.client.get('/devices')
+    return data
+  }
+
+  async getLoginAlerts(days = 7): Promise<any[]> {
+    const {data } = await this.client.get('/login-alerts', { params: { days } })
+    return data
+  }
+
+  async revokeSession(sessionId: string): Promise<any> {
+    const { data } = await this.client.post(`/sessions/${sessionId}/revoke`)
+    return data
+  }
+
+  // Reseller Endpoints
+  async createSubAccount(accountData: any): Promise<any> {
+    const { data } = await this.client.post('/reseller/sub-accounts', accountData)
+    return data
+  }
+
+  async getRevenueSplit(days = 30): Promise<any> {
+    const { data } = await this.client.get('/reseller/revenue-split', { params: { days } })
+    return data
+  }
+
+  async uploadTenantLogo(tenantId: string, file: File): Promise<any> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await this.client.post(`/reseller/tenants/${tenantId}/logo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return data
+  }
+
+  async getTenantsForSwitcher(): Promise<any[]> {
+    const { data } = await this.client.get('/reseller/tenants')
+    return data
+  }
 }
 
 // Helper function for delays

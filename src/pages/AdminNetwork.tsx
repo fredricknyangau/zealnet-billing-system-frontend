@@ -11,6 +11,7 @@ import toast from 'react-hot-toast'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { SkeletonText } from '@/components/ui/Skeleton'
+import { UsageHeatmap } from '@/components/admin/UsageHeatmap'
 
 // Mock AP health data (Backend integration pending for AP management)
 const mockAPHealth = [
@@ -167,6 +168,9 @@ export const AdminNetwork: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Usage Heatmap */}
+      <UsageHeatmap />
 
       {/* Live Sessions */}
       <Card>

@@ -12,7 +12,8 @@ import {
   Star,
   Clock,
   Database,
-  Gauge
+  Gauge,
+  Globe
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -26,34 +27,50 @@ export const Landing: React.FC = () => {
     {
       icon: Zap,
       title: 'Instant WiFi Access',
-      description: 'Get connected in seconds with our seamless captive portal and mobile money integration.'
+      description: 'Get connected in seconds with QR code scanning, voucher codes, or instant mobile money payment.'
     },
     {
       icon: Smartphone,
       title: 'Mobile Money Integration',
-      description: 'Pay with M-Pesa, MTN, or Airtel Money. Fast, secure, and convenient.'
+      description: 'Pay with M-Pesa, MTN, or Airtel Money. Fast, secure, and convenient with STK Push.'
     },
     {
       icon: Shield,
       title: 'AI-Powered Support',
-      description: '24/7 intelligent chatbot assistance for instant help and plan recommendations.'
+      description: '24/7 intelligent chatbot assistance with plan recommendations and instant help in multiple languages.'
     },
     {
       icon: Users,
-      title: 'Multi-Tenant Management',
-      description: 'Perfect for resellers and businesses managing multiple locations and customers.'
+      title: 'Multi-Tenant & Reseller Tools',
+      description: 'Complete white-label solution with sub-account provisioning, revenue splits, and custom branding.'
     },
     {
       icon: BarChart3,
-      title: 'Real-time Analytics',
-      description: 'Track usage, revenue, and customer behavior with powerful dashboards.'
+      title: 'Advanced Analytics',
+      description: 'Churn analysis, usage heatmaps, revenue visualization, and real-time customer insights.'
     },
     {
       icon: Shield,
-      title: 'Secure Payments',
-      description: 'Bank-grade security with encrypted transactions and fraud protection.'
+      title: 'Enterprise Security',
+      description: 'Device trust indicators, login alerts, session management, and encrypted transactions.'
+    },
+    {
+      icon: Wifi,
+      title: 'Offline Capable',
+      description: 'PWA with background sync, offline queue, and automatic retry for seamless experience.'
+    },
+    {
+      icon: Globe,
+      title: 'Multilingual Support',
+      description: 'Full support for English, Swahili, French, and Hausa with auto-detection.'
+    },
+    {
+      icon: Gauge,
+      title: '3G Network Optimized',
+      description: 'Blazing fast performance even on slow networks. Lighthouse score 94/100 on mobile.'
     }
   ]
+
 
   const steps = [
     {

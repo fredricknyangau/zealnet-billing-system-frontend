@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CreditCard, CheckCircle, XCircle, Clock, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type PaymentProvider = 'mpesa_ke' | 'mpesa_tz' | 'airtel_money' | 'mtn_mobile_money';

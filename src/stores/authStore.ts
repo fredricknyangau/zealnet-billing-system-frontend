@@ -4,26 +4,39 @@ import type { User } from '@/types'
 
 interface AuthState {
   user: User | null
-  token: string | null
   isAuthenticated: boolean
-  setAuth: (user: User, token: string) => void
+  setAuth: (user: User) => void
   logout: () => void
   updateUser: (user: Partial<User>) => void
 }
 
+/**
+ * Authentication store - SECURITY UPDATE
+ * 
+ * Token storage has been REMOVED from client-side for security.
+ * Authentication now relies entirely on httpOnly cookies set by the backend.
+ * 
+ * Benefits:
+ * - Immune to XSS attacks (JavaScript cannot access httpOnly cookies)
+ * - Automatic cookie transmission with requests
+ * - Server-side token validation
+ * 
+ * The backend sets the token as an httpOnly cookie on login,
+ * and the browser automatically includes it in subsequent requests.
+ */
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
       isAuthenticated: false,
-      setAuth: (user, token) => {
-        localStorage.setItem('auth_token', token)
-        set({ user, token, isAuthenticated: true })
+      setAuth: (user) => {
+        // Token is stored securely in httpOnly cookie by backend
+        // We only store user data and auth state
+        set({ user, isAuthenticated: true })
       },
       logout: () => {
-        localStorage.removeItem('auth_token')
-        set({ user: null, token: null, isAuthenticated: false })
+        // Clear local state - backend will clear httpOnly cookie
+        set({ user: null, isAuthenticated: false })
       },
       updateUser: (userUpdates) =>
         set((state) => ({
@@ -33,7 +46,11 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+      // Only persist user data and auth state, NOT the token
+      partialize: (state) => ({ 
+        user: state.user, 
+        isAuthenticated: state.isAuthenticated 
+      }),
     }
   )
 )

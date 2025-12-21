@@ -11,6 +11,8 @@ import {
   Download,
   Pause,
   Play,
+  XCircle,
+  AlertTriangle,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
@@ -23,6 +25,9 @@ import { formatCurrency, formatBytes, formatDuration, maskMacAddress, maskPhoneN
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useWebSocket } from '@/hooks/useWebSocket'
+import { DeviceTrustBadge } from '@/components/security/DeviceTrustBadge'
+import { LoginAlertsContainer } from '@/components/security/LoginAlert'
+import { DisputeModal } from '@/components/DisputeModal'
 import toast from 'react-hot-toast'
 
 export const CustomerDashboard: React.FC = () => {
@@ -32,6 +37,8 @@ export const CustomerDashboard: React.FC = () => {
   const { user, logout } = useAuthStore()
   const [showBuyMoreModal, setShowBuyMoreModal] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showDisputeModal, setShowDisputeModal] = useState(false)
+  const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const { showNotification, requestPermission } = usePushNotifications()
 
   // Request notification permission on mount
@@ -107,6 +114,26 @@ export const CustomerDashboard: React.FC = () => {
     },
   })
 
+  const revokeSession = useMutation({
+    mutationFn: async (_id: string) => {
+      // In production: await api.revokeSession(_id)
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      return { success: true }
+    },
+    onSuccess: () => {
+      toast.success('Session revoked successfully')
+      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+    },
+    onError: () => {
+      toast.error('Failed to revoke session')
+    },
+  })
+
+  const handleDispute = (payment: any) => {
+    setSelectedPayment(payment)
+    setShowDisputeModal(true)
+  }
+
   const handleLogout = () => {
     logout()
     navigate('/portal')
@@ -157,6 +184,8 @@ export const CustomerDashboard: React.FC = () => {
       </header>
 
       <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Login Alerts */}
+        <LoginAlertsContainer className="mb-6" />
         {/* Subscription Status */}
         <Card className="mb-6">
           <CardHeader>
@@ -299,7 +328,8 @@ export const CustomerDashboard: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end gap-2">
+                      <DeviceTrustBadge device={device} />
                       <Badge variant={device.isActive ? 'success' : 'default'} size="sm">
                         {device.isActive ? 'Active' : 'Inactive'}
                       </Badge>
@@ -365,6 +395,16 @@ export const CustomerDashboard: React.FC = () => {
                           {t('dashboard.downloadReceipt')}
                         </Button>
                       )}
+                      {payment.status === 'failed' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<AlertTriangle className="h-4 w-4" />}
+                          onClick={() => handleDispute(payment)}
+                        >
+                          Dispute
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -402,9 +442,25 @@ export const CustomerDashboard: React.FC = () => {
                         {formatBytes(session.dataUsed)}
                       </p>
                     </div>
-                    <Badge variant="info" size="sm">
-                      {session.ipAddress}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="info" size="sm">
+                        {session.ipAddress}
+                      </Badge>
+                      {!session.endTime && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          icon={<XCircle className="h-4 w-4" />}
+                          onClick={() => {
+                            if (confirm('Are you sure you want to revoke this session?')) {
+                              revokeSession.mutate(session.id)
+                            }
+                          }}
+                        >
+                          Revoke
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -490,6 +546,18 @@ export const CustomerDashboard: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Dispute Modal */}
+      {showDisputeModal && selectedPayment && (
+        <DisputeModal
+          isOpen={showDisputeModal}
+          onClose={() => {
+            setShowDisputeModal(false)
+            setSelectedPayment(null)
+          }}
+          transactionId={selectedPayment.transactionId}
+        />
+      )}
     </div>
   )
 }

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Mail, Phone, MapPin, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { sanitizeText } from '@/lib/sanitize'
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -20,15 +19,15 @@ export const ContactPage: React.FC = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Sanitize all inputs before processing
-    const sanitizedData = {
-      name: sanitizeText(formData.name),
-      email: sanitizeText(formData.email),
-      subject: sanitizeText(formData.subject),
-      message: sanitizeText(formData.message)
-    }
+    // TODO: Sanitize all inputs before processing
+    // const sanitizedData = {
+    //   name: sanitizeText(formData.name),
+    //   email: sanitizeText(formData.email),
+    //   subject: sanitizeText(formData.subject),
+    //   message: sanitizeText(formData.message)
+    // }
     
-    // TODO: Send sanitizedData to backend API
+    // TODO: Send sanitized data to backend API
     await new Promise(resolve => setTimeout(resolve, 1500))
     
     toast.success('Message sent successfully! We\'ll get back to you soon.')

@@ -1,11 +1,8 @@
 import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { 
   Wifi, 
-  Smartphone, 
-  CreditCard, 
-  QrCode, 
   Clock, 
   Database, 
   Zap, 
@@ -26,7 +23,6 @@ import { Plan } from '@/types'
 
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { formatCurrency, formatBytes, formatDuration } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'

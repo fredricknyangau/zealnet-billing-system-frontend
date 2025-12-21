@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { Smartphone, Lock, Eye, EyeOff, CheckCircle2, Shield, Key } from 'lucide-react'
@@ -8,13 +7,13 @@ import { useAuthStore } from '@/stores/authStore'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { AnimatedInput } from '@/components/auth/AnimatedInput'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 
 type AuthMethod = 'password' | 'otp'
 
 export const LoginPage: React.FC = () => {
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
   
@@ -37,7 +36,7 @@ export const LoginPage: React.FC = () => {
       return await api.loginWithPassword(phoneNumber, password)
     },
     onSuccess: (data) => {
-      setAuth(data.user, '') // No token needed, using cookies
+      setAuth(data.user)
       toast.success('Login successful!', {
         icon: '✨',
         style: {
@@ -82,7 +81,7 @@ export const LoginPage: React.FC = () => {
   const verifyOTP = useMutation({
     mutationFn: ({ phone, otp }: { phone: string; otp: string }) => api.verifyOTP(phone, otp),
     onSuccess: (data) => {
-      setAuth(data.user, '') // No token needed, using cookies
+      setAuth(data.user)
       toast.success('Login successful!', {
         icon: '✨',
         style: {
@@ -134,7 +133,7 @@ export const LoginPage: React.FC = () => {
   // OTP Verification Screen
   if (showOtpInput) {
     return (
-      <AuthLayout>
+      <AuthLayout title="Verify Your Phone">
         <AuthCard>
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -148,6 +147,7 @@ export const LoginPage: React.FC = () => {
 
           <form onSubmit={handleVerifyOtp} className="space-y-6">
             <AnimatedInput
+              label="Verification Code"
               type="text"
               placeholder="Enter 6-digit code"
               value={otp}
@@ -205,7 +205,7 @@ export const LoginPage: React.FC = () => {
 
   // Main Login Screen
   return (
-    <AuthLayout>
+    <AuthLayout title="Welcome Back">
       <AuthCard>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
@@ -242,16 +242,15 @@ export const LoginPage: React.FC = () => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Phone Number */}
-          <AnimatedInput
-            type="tel"
+          <PhoneInput
             label="Phone Number"
-            placeholder="+254 700 000 000"
+            placeholder="712 345 678"
             value={phoneNumber}
             onChange={setPhoneNumber}
-            leftIcon={<Smartphone className="h-5 w-5" />}
             required
+            defaultCountry="KE"
           />
 
           {/* Password Field (only for password auth) */}
