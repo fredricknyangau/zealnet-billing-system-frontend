@@ -187,7 +187,7 @@ export const CustomerDashboard: React.FC = () => {
         {/* Login Alerts */}
         <LoginAlertsContainer className="mb-6" />
         {/* Subscription Status */}
-        <Card className="mb-6">
+        <Card className="mb-6" variant="glass">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -300,7 +300,7 @@ export const CustomerDashboard: React.FC = () => {
         </Card>
 
         {/* Devices */}
-        <Card className="mb-6">
+        <Card className="mb-6" variant="glass">
           <CardHeader>
             <CardTitle>{t('dashboard.devices')}</CardTitle>
             <CardDescription>Your connected devices</CardDescription>
@@ -349,7 +349,7 @@ export const CustomerDashboard: React.FC = () => {
         </Card>
 
         {/* Payment History */}
-        <Card className="mb-6">
+        <Card className="mb-6" variant="glass">
           <CardHeader>
             <CardTitle>{t('dashboard.transactionHistory')}</CardTitle>
             <CardDescription>Your payment transactions</CardDescription>
@@ -418,7 +418,7 @@ export const CustomerDashboard: React.FC = () => {
         </Card>
 
         {/* Session History */}
-        <Card>
+        <Card variant="glass">
           <CardHeader>
             <CardTitle>{t('dashboard.sessionHistory')}</CardTitle>
             <CardDescription>Your recent sessions</CardDescription>

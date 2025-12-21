@@ -2,7 +2,7 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'outline' | 'elevated'
+  variant?: 'default' | 'outline' | 'elevated' | 'glass'
   padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
@@ -17,6 +17,7 @@ export const Card: React.FC<CardProps> = ({
     default: 'bg-card text-card-foreground',
     outline: 'bg-transparent border-2 border-border',
     elevated: 'bg-card text-card-foreground shadow-elevated',
+    glass: 'bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg',
   }
 
   const paddings = {
