@@ -139,14 +139,14 @@ export const LoginAlertsContainer: React.FC<LoginAlertsContainerProps> = ({ clas
   // Listen for new login events (would be from WebSocket in production)
   useEffect(() => {
     // Mock alert for demonstration (currently disabled)
-    const _mockAlert: LoginAlertData = {
-      id: 'alert-' + Date.now(),
-      deviceName: 'Chrome on Windows',
-      location: 'Nairobi, Kenya',
-      ipAddress: '41.90.xxx.xxx',
-      timestamp: new Date(),
-      isNewDevice: true
-    }
+    // const _mockAlert: LoginAlertData = {
+    //   id: 'alert-' + Date.now(),
+    //   deviceName: 'Chrome on Windows',
+    //   location: 'Nairobi, Kenya',
+    //   ipAddress: '41.90.xxx.xxx',
+    //   timestamp: new Date(),
+    //   isNewDevice: true
+    // }
 
     // Uncomment to test
     // setTimeout(() => setAlerts([_mockAlert]), 2000)

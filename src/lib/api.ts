@@ -87,6 +87,15 @@ class ApiClient {
     return data
   }
 
+  async redeemVoucher(code: string): Promise<any> {
+    if (USE_MOCK_DATA) {
+        await delay(500)
+        return { success: true }
+    }
+    const { data } = await this.client.post('/vouchers/redeem', { code })
+    return data
+  }
+
   // Payment endpoints
   async initiateMpesaPayment(amount: number, phone: string): Promise<{ checkoutRequestId: string }> {
     if (USE_MOCK_DATA) {
@@ -183,6 +192,17 @@ class ApiClient {
       return { upload_bytes: 1024 * 1024 * 100, download_bytes: 1024 * 1024 * 500, total_bytes: 1024 * 1024 * 600 }
     }
     const { data } = await this.client.get('/users/me/usage')
+    return data
+  }
+
+  async getUsageHistory(days = 7): Promise<{ date: string; total_bytes: number }[]> {
+    if (USE_MOCK_DATA) {
+        return Array.from({ length: days }).map((_, i) => ({
+          date: new Date(Date.now() - (days - 1 - i) * 86400000).toISOString().split('T')[0],
+          total_bytes: Math.floor(Math.random() * 1024 * 1024 * 500),
+        }))
+    }
+    const { data } = await this.client.get('/users/me/analytics/usage/history', { params: { days } })
     return data
   }
   

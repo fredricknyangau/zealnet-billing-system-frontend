@@ -5,8 +5,6 @@ import {
   LayoutDashboard,
   Users,
   CreditCard,
-  Package,
-  BarChart3,
   LogOut,
   Menu,
   X,
@@ -15,12 +13,10 @@ import {
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
+import { Card, CardContent } from '@/components/ui/Card'
 import { SkeletonText } from '@/components/ui/Skeleton'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { RevenueSplitVisualization } from '@/components/reseller/RevenueSplitVisualization'
-import { TenantSwitcher } from '@/components/reseller/TenantSwitcher'
 import { SubAccountWizard } from '@/components/reseller/SubAccountWizard'
 import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'

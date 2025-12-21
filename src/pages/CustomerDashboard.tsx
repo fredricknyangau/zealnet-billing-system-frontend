@@ -28,6 +28,12 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 import { DeviceTrustBadge } from '@/components/security/DeviceTrustBadge'
 import { LoginAlertsContainer } from '@/components/security/LoginAlert'
 import { DisputeModal } from '@/components/DisputeModal'
+import { UsageChart } from '@/components/dashboard/UsageChart'
+import { VoucherRedemptionCard } from '@/components/dashboard/VoucherRedemptionCard'
+import { WalletTopUpModal } from '@/components/dashboard/WalletTopUpModal'
+import { ProfileSettingsModal } from '@/components/dashboard/ProfileSettingsModal'
+import { SpeedTestWidget } from '@/components/dashboard/SpeedTestWidget'
+import { Settings, Wallet as WalletIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export const CustomerDashboard: React.FC = () => {
@@ -38,6 +44,9 @@ export const CustomerDashboard: React.FC = () => {
   const [showBuyMoreModal, setShowBuyMoreModal] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showDisputeModal, setShowDisputeModal] = useState(false)
+
+  const [showTopUpModal, setShowTopUpModal] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const { showNotification, requestPermission } = usePushNotifications()
 
@@ -61,6 +70,7 @@ export const CustomerDashboard: React.FC = () => {
     }
   })
 
+  // Queries and Mutations (unchanged)
   const { data: subscription, isLoading: subLoading } = useQuery({
     queryKey: ['subscription'],
     queryFn: () => api.getSubscription(),
@@ -158,6 +168,14 @@ export const CustomerDashboard: React.FC = () => {
     resumeSubscription.mutate()
   }
 
+  const handleTopUp = () => {
+    setShowTopUpModal(true)
+  }
+
+  const handleSettings = () => {
+    setShowSettingsModal(true)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -177,6 +195,7 @@ export const CustomerDashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <Button variant="ghost" size="sm" onClick={handleSettings} icon={<Settings className="h-4 w-4" />} />
               <Button variant="ghost" size="sm" onClick={handleLogout} icon={<LogOut className="h-4 w-4" />} />
             </div>
           </div>
@@ -284,6 +303,14 @@ export const CustomerDashboard: React.FC = () => {
                       {t('dashboard.resume')}
                     </Button>
                   )}
+
+                   <Button
+                    variant="outline"
+                    icon={<WalletIcon className="h-4 w-4" />}
+                    onClick={handleTopUp}
+                  >
+                    Top Up
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -298,6 +325,19 @@ export const CustomerDashboard: React.FC = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Analytics & Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="lg:col-span-2">
+                <UsageChart />
+            </div>
+            <div>
+                <VoucherRedemptionCard />
+            </div>
+            <div>
+                <SpeedTestWidget />
+            </div>
+        </div>
 
         {/* Devices */}
         <Card className="mb-6" variant="glass">
@@ -548,6 +588,7 @@ export const CustomerDashboard: React.FC = () => {
       </Modal>
 
       {/* Dispute Modal */}
+
       {showDisputeModal && selectedPayment && (
         <DisputeModal
           isOpen={showDisputeModal}
@@ -558,6 +599,9 @@ export const CustomerDashboard: React.FC = () => {
           transactionId={selectedPayment.transactionId}
         />
       )}
+
+      <WalletTopUpModal isOpen={showTopUpModal} onClose={() => setShowTopUpModal(false)} />
+      <ProfileSettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
     </div>
   )
 }

@@ -88,7 +88,7 @@ export const ForgotPasswordPage: React.FC = () => {
               label="Phone Number"
               placeholder="+254 700 000 000"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
               leftIcon={<Smartphone className="h-5 w-5" />}
               disabled={isLoading}
               autoFocus
