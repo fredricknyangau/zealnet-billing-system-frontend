@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input' // Assuming Input exists, if not use standard input
 import { Ticket } from 'lucide-react'
 import { api } from '@/lib/api'
+import { extractErrorMessage } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 
@@ -24,7 +25,7 @@ export const VoucherRedemptionCard: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] })
     },
     onError: (error: any) => {
-        const msg = error.response?.data?.detail || 'Failed to redeem voucher'
+        const msg = extractErrorMessage(error, 'Failed to redeem voucher')
         toast.error(msg)
     },
   })

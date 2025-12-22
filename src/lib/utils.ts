@@ -79,3 +79,22 @@ export function throttle<T extends (...args: any[]) => any>(
   }
 }
 
+export function extractErrorMessage(error: any, fallback: string = 'An error occurred'): string {
+  if (!error) return fallback
+  
+  if (error.response?.data) {
+    const data = error.response.data
+    if (data.detail) {
+      if (typeof data.detail === 'string') return data.detail
+      if (Array.isArray(data.detail)) {
+        return data.detail.map((err: any) => err.msg || 'Invalid input').join(', ')
+      }
+    }
+    if (data.message && typeof data.message === 'string') return data.message
+  }
+  
+  if (error.message && typeof error.message === 'string') return error.message
+  
+  return fallback
+}
+

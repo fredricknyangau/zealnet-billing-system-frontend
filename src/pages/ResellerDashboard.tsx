@@ -11,6 +11,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { api } from '@/lib/api'
+import { extractErrorMessage } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -117,7 +118,8 @@ const ResellerSubAccounts: React.FC = () => {
       toast.success('Sub-account created successfully!')
       refetch()
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to create sub-account')
+      const msg = extractErrorMessage(error, 'Failed to create sub-account')
+      toast.error(msg)
     }
   }
 

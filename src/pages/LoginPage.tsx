@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { Smartphone, Lock, Eye, EyeOff, CheckCircle2, Shield, Key } from 'lucide-react'
 import { api } from '@/lib/api'
+import { extractErrorMessage } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
@@ -53,7 +54,8 @@ export const LoginPage: React.FC = () => {
       navigate(redirectPath)
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Invalid credentials')
+      const msg = extractErrorMessage(error, 'Invalid credentials')
+      toast.error(msg)
     },
   })
 

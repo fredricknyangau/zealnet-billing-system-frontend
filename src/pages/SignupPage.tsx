@@ -12,6 +12,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { api } from '@/lib/api'
+import { extractErrorMessage } from '@/lib/utils'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { AnimatedInput } from '@/components/auth/AnimatedInput'
@@ -122,7 +123,8 @@ export const SignupPage: React.FC = () => {
       navigate('/login')
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Registration failed')
+      const msg = extractErrorMessage(error, 'Registration failed')
+      toast.error(msg)
     },
   })
 
