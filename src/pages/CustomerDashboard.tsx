@@ -8,11 +8,9 @@ import {
   CreditCard,
   TrendingUp,
   LogOut,
-  Download,
   Pause,
   Play,
   XCircle,
-  AlertTriangle,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
@@ -29,10 +27,12 @@ import { DeviceTrustBadge } from '@/components/security/DeviceTrustBadge'
 import { LoginAlertsContainer } from '@/components/security/LoginAlert'
 import { DisputeModal } from '@/components/DisputeModal'
 import { UsageChart } from '@/components/dashboard/UsageChart'
-import { VoucherRedemptionCard } from '@/components/dashboard/VoucherRedemptionCard'
 import { WalletTopUpModal } from '@/components/dashboard/WalletTopUpModal'
 import { ProfileSettingsModal } from '@/components/dashboard/ProfileSettingsModal'
 import { SpeedTestWidget } from '@/components/dashboard/SpeedTestWidget'
+import { LiveUsageWidget } from '@/components/dashboard/LiveUsageWidget'
+import { VoucherRedemption } from '@/components/dashboard/VoucherRedemption'
+import { EnhancedPaymentHistory } from '@/components/dashboard/EnhancedPaymentHistory'
 import { Settings, Wallet as WalletIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -56,19 +56,20 @@ export const CustomerDashboard: React.FC = () => {
   }, [requestPermission])
 
   // Listen for real-time subscription updates
-  useWebSocket('subscription_update', (data: any) => {
-    queryClient.invalidateQueries({ queryKey: ['subscription'] })
-    if (data.lowBalance) {
-      showNotification('Low Balance Warning', {
-        body: 'Your WiFi balance is running low. Consider topping up.',
-      })
-    }
-    if (data.expiringSoon) {
-      showNotification('Subscription Expiring Soon', {
-        body: `Your subscription expires in ${data.timeRemaining}. Renew now to stay connected.`,
-      })
-    }
-  })
+  // TODO: Implement general WebSocket endpoint on backend or use LiveUsageWidget's WebSocket
+  // useWebSocket('subscription_update', (data: any) => {
+  //   queryClient.invalidateQueries({ queryKey: ['subscription'] })
+  //   if (data.lowBalance) {
+  //     showNotification('Low Balance Warning', {
+  //       body: 'Your WiFi balance is running low. Consider topping up.',
+  //     })
+  //   }
+  //   if (data.expiringSoon) {
+  //     showNotification('Subscription Expiring Soon', {
+  //       body: `Your subscription expires in ${data.timeRemaining}. Renew now to stay connected.`,
+  //     })
+  //   }
+  // })
 
   // Queries and Mutations (unchanged)
   const { data: subscription, isLoading: subLoading } = useQuery({
@@ -327,16 +328,20 @@ export const CustomerDashboard: React.FC = () => {
         </Card>
 
         {/* Analytics & Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div className="lg:col-span-2">
-                <UsageChart />
-            </div>
-            <div>
-                <VoucherRedemptionCard />
-            </div>
-            <div>
-                <SpeedTestWidget />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Live Usage Widget */}
+            {user?.id && (
+              <LiveUsageWidget userId={user.id} />
+            )}
+            
+            {/* Voucher Redemption */}
+            <VoucherRedemption />
+        </div>
+
+        {/* Usage Chart and Speed Test */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <UsageChart />
+            <SpeedTestWidget />
         </div>
 
         {/* Devices */}
@@ -388,74 +393,10 @@ export const CustomerDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Payment History */}
-        <Card className="mb-6" variant="glass">
-          <CardHeader>
-            <CardTitle>{t('dashboard.transactionHistory')}</CardTitle>
-            <CardDescription>Your payment transactions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {paymentsLoading ? (
-              <SkeletonText lines={5} />
-            ) : payments && payments.length > 0 ? (
-              <div className="space-y-3">
-                {payments.slice(0, 5).map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {formatCurrency(payment.amount, payment.currency)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(payment.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge
-                        variant={
-                          payment.status === 'completed'
-                            ? 'success'
-                            : payment.status === 'failed'
-                            ? 'danger'
-                            : 'warning'
-                        }
-                        size="sm"
-                      >
-                        {payment.status}
-                      </Badge>
-                      {payment.receiptUrl && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          icon={<Download className="h-4 w-4" />}
-                          onClick={() => window.open(payment.receiptUrl, '_blank')}
-                        >
-                          {t('dashboard.downloadReceipt')}
-                        </Button>
-                      )}
-                      {payment.status === 'failed' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          icon={<AlertTriangle className="h-4 w-4" />}
-                          onClick={() => handleDispute(payment)}
-                        >
-                          Dispute
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground py-4">
-                No payment history
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        {/* Enhanced Payment History */}
+        <div className="mb-6">
+          <EnhancedPaymentHistory />
+        </div>
 
         {/* Session History */}
         <Card variant="glass">

@@ -7,32 +7,32 @@
 @layer base {
   :root {
     /* African Fintech Design System - Light Mode */
-    --background: 210 20% 98%;
-    --foreground: 220 20% 10%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 0 0% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 0 0% 3.9%;
 
     /* Primary: Teal/Cyan (#0D9488) - Trust, Fintech feel */
-    --primary: 175 84% 32%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
 
     /* Secondary: Warm Gray */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 20%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
 
     /* Accent: Amber (#F59E0B) - Energy, African Warmth */
-    --accent: 38 92% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
     /* Success: Emerald (#10B981) - Payments */
     --success: 151 55% 42%;
@@ -42,11 +42,11 @@
     --warning: 25 95% 53%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 175 84% 32%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Custom tokens */
     --gradient-primary: linear-gradient(
@@ -84,34 +84,39 @@
     --sidebar-accent-foreground: 220 20% 20%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 175 84% 32%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   .dark {
     /* Dark Mode - Battery Saving, High Contrast */
-    --background: 220 25% 6%;
-    --foreground: 210 20% 98%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 25% 10%;
-    --card-foreground: 210 20% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 25% 10%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
     /* Primary: High contrast Teal */
-    --primary: 175 84% 40%;
-    --primary-foreground: 220 25% 6%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
 
-    --secondary: 220 20% 16%;
-    --secondary-foreground: 210 20% 90%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 20% 14%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 220 25% 6%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
     --success: 151 55% 42%;
     --success-foreground: 220 25% 6%;
@@ -119,9 +124,9 @@
     --warning: 25 95% 53%;
     --warning-foreground: 220 25% 6%;
 
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 175 84% 40%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
 
     --gradient-primary: linear-gradient(
       135deg,
@@ -148,6 +153,11 @@
     --sidebar-accent-foreground: 210 20% 90%;
     --sidebar-border: 220 20% 16%;
     --sidebar-ring: 175 84% 40%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -420,5 +430,16 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

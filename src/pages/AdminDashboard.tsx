@@ -15,6 +15,9 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
+  Ticket,
+  TrendingUp,
+  AlertOctagon,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
@@ -31,6 +34,9 @@ import { AdminPlans } from './AdminPlans'
 import { AdminNetwork } from './AdminNetwork'
 import { AdminReports } from './AdminReports'
 import { AIInsightCard, InsightType } from '@/components/ai/AIInsightCard'
+import { DLQMonitoringPanel } from '@/components/admin/DLQMonitoringPanel'
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard'
+import { VoucherManagement } from '@/components/admin/VoucherManagement'
 
 const AdminOverview: React.FC = () => {
   const { t } = useTranslation()
@@ -295,6 +301,9 @@ export const AdminDashboard: React.FC = () => {
     { icon: Package, label: t('admin.plans'), path: '/admin/plans' },
     { icon: Network, label: t('admin.network'), path: '/admin/network' },
     { icon: BarChart3, label: t('admin.reports'), path: '/admin/reports' },
+    { icon: TrendingUp, label: 'Analytics', path: '/admin/analytics' },
+    { icon: AlertOctagon, label: 'DLQ Monitor', path: '/admin/dlq' },
+    { icon: Ticket, label: 'Vouchers', path: '/admin/vouchers' },
   ]
 
   const handleLogout = () => {
@@ -379,6 +388,9 @@ export const AdminDashboard: React.FC = () => {
             <Route path="/plans" element={<AdminPlans />} />
             <Route path="/network" element={<AdminNetwork />} />
             <Route path="/reports" element={<AdminReports />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+            <Route path="/dlq" element={<DLQMonitoringPanel />} />
+            <Route path="/vouchers" element={<VoucherManagement />} />
           </Routes>
         </div>
       </main>

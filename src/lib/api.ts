@@ -518,6 +518,23 @@ class ApiClient {
     const { data } = await this.client.get('/reseller/tenants')
     return data
   }
+
+  // Generic HTTP methods for new components
+  async get(url: string, config?: any): Promise<any> {
+    return await this.client.get(url, config)
+  }
+
+  async post(url: string, data?: any, config?: any): Promise<any> {
+    return await this.client.post(url, data, config)
+  }
+
+  async put(url: string, data?: any, config?: any): Promise<any> {
+    return await this.client.put(url, data, config)
+  }
+
+  async delete(url: string, config?: any): Promise<any> {
+    return await this.client.delete(url, config)
+  }
 }
 
 // Helper function for delays

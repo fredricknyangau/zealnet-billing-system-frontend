@@ -8,7 +8,6 @@ import {
   LogOut,
   Menu,
   X,
-  Plus,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { extractErrorMessage } from '@/lib/utils'
@@ -18,7 +17,7 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { SkeletonText } from '@/components/ui/Skeleton'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { RevenueSplitVisualization } from '@/components/reseller/RevenueSplitVisualization'
-import { SubAccountWizard } from '@/components/reseller/SubAccountWizard'
+import { SubAccountManagement } from '@/components/reseller/SubAccountManagement'
 import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
@@ -101,95 +100,15 @@ const ResellerOverview: React.FC = () => {
 }
 
 const ResellerSubAccounts: React.FC = () => {
-  const [showWizard, setShowWizard] = useState(false)
-  
-  const { data: tenants = [], isLoading, refetch } = useQuery({
-    queryKey: ['reseller-tenants'],
-    queryFn: () => api.getTenantsForSwitcher(),
-  })
-
-  const handleCreateNewTenant = () => {
-    setShowWizard(true)
-  }
-
-  const handleWizardComplete = async (data: any) => {
-    try {
-      await api.createSubAccount(data)
-      toast.success('Sub-account created successfully!')
-      refetch()
-    } catch (error: any) {
-      const msg = extractErrorMessage(error, 'Failed to create sub-account')
-      toast.error(msg)
-    }
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Sub-Accounts</h2>
-          <p className="text-muted-foreground">Manage your client tenants</p>
-        </div>
-        <Button onClick={handleCreateNewTenant} icon={<Plus className="h-4 w-4" />}>
-          New Sub-Account
-        </Button>
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">Sub-Accounts</h2>
+        <p className="text-muted-foreground">Manage your client tenants and track commissions</p>
       </div>
 
-      {isLoading ? (
-        <SkeletonText lines={5} />
-      ) : (
-        <Card>
-          <CardContent className="p-0">
-             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Domain</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Customers</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Revenue (30d)</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-card divide-y divide-border">
-                  {tenants.map((tenant) => (
-                    <tr key={tenant.id} className="hover:bg-muted/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-foreground">{tenant.name}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                        {tenant.domain}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                        {tenant.customerCount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground font-medium text-success">
-                        KES {tenant.monthlyRevenue?.toLocaleString() || 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        <Button variant="ghost" size="sm">Manage</Button>
-                      </td>
-                    </tr>
-                  ))}
-                  {tenants.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
-                        No sub-accounts found. Create one to get started.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <SubAccountWizard
-        isOpen={showWizard}
-        onClose={() => setShowWizard(false)}
-        onComplete={handleWizardComplete}
-      />
+      {/* New SubAccountManagement Component */}
+      <SubAccountManagement />
     </div>
   )
 }

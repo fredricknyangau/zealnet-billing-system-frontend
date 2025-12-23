@@ -30,6 +30,13 @@ import { QRScanner } from '@/components/portal/QRScanner'
 import { TermsModal } from '@/components/portal/TermsModal'
 import { ChatbotWidget } from '@/components/ai/ChatbotWidget'
 import MobileMoneyPayment from '@/components/payments/MobileMoneyPayment'
+import { 
+  parseMikroTikParams, 
+  isMikroTikHotspot, 
+  redirectToMikroTikLogin,
+  getUserIdentifier,
+  generateSessionPassword
+} from '@/utils/mikrotik'
 
 import toast from 'react-hot-toast'
 
@@ -270,6 +277,10 @@ export const CaptivePortal: React.FC = () => {
   const [showComparison, setShowComparison] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
 
+  // Parse MikroTik hotspot parameters from URL
+  const [hotspotParams] = useState(() => parseMikroTikParams())
+  const isMikroTik = isMikroTikHotspot(hotspotParams)
+
   const { data: plans, isLoading: plansLoading } = useQuery({
     queryKey: ['plans'],
     queryFn: () => api.getPlans(),
@@ -284,10 +295,31 @@ export const CaptivePortal: React.FC = () => {
     console.log('Payment successful:', paymentId)
     setShowPayment(false)
     setSelectedPlan(null)
-    toast.success('Payment successful! Redirecting to login...')
-    setTimeout(() => {
-      window.location.href = '/login'
-    }, 2000)
+    
+    // If from MikroTik hotspot, redirect back for authentication
+    if (isMikroTik && hotspotParams.linkLogin) {
+      toast.success('Payment successful! Connecting to internet...')
+      
+      // Use MAC address or username as identifier
+      const username = getUserIdentifier(hotspotParams)
+      const password = generateSessionPassword(hotspotParams.mac)
+      
+      // Redirect back to MikroTik for authentication
+      setTimeout(() => {
+        redirectToMikroTikLogin(
+          hotspotParams.linkLogin!,
+          username,
+          password,
+          hotspotParams.linkOrig
+        )
+      }, 1500)
+    } else {
+      // Regular flow - redirect to login page
+      toast.success('Payment successful! Redirecting to login...')
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2000)
+    }
   }
 
   const handlePaymentCancel = () => {

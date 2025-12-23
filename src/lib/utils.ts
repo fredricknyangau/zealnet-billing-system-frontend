@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -8,93 +8,39 @@ export function cn(...inputs: ClassValue[]) {
 export function formatCurrency(amount: number, currency: string = 'KES'): string {
   return new Intl.NumberFormat('en-KE', {
     style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    currency: currency,
   }).format(amount)
 }
 
 export function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0) return '0 Bytes'
   const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
 }
 
 export function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  }
-  if (minutes > 0) {
-    return `${minutes}m ${secs}s`
-  }
-  return `${secs}s`
-}
-
-export function maskPhoneNumber(phone: string): string {
-  if (phone.length < 4) return phone
-  return `${phone.slice(0, 2)}****${phone.slice(-2)}`
+  if (seconds < 60) return `${seconds}s`
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`
+  return `${Math.floor(seconds / 86400)}d`
 }
 
 export function maskMacAddress(mac: string): string {
-  if (mac.length < 8) return mac
-  const parts = mac.split(':')
-  if (parts.length === 6) {
-    return `${parts[0]}:${parts[1]}:**:**:${parts[5]}`
-  }
-  return mac
+  if (!mac || mac.length < 6) return mac
+  return mac.substring(0, 6) + ':XX:XX:XX'
 }
 
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout> | null = null
-  return function executedFunction(...args: Parameters<T>) {
-    const later = () => {
-      timeout = null
-      func(...args)
-    }
-    if (timeout) clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
+export function maskPhoneNumber(phone: string): string {
+  if (!phone || phone.length < 4) return phone
+  return phone.substring(0, phone.length - 4) + '****'
 }
 
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean
-  return function executedFunction(...args: Parameters<T>) {
-    if (!inThrottle) {
-      func(...args)
-      inThrottle = true
-      setTimeout(() => (inThrottle = false), limit)
-    }
-  }
+export function extractErrorMessage(error: any, defaultMessage: string = 'An error occurred'): string {
+  if (typeof error === 'string') return error
+  if (error?.response?.data?.detail) return error.response.data.detail
+  if (error?.response?.data?.message) return error.response.data.message
+  if (error?.message) return error.message
+  return defaultMessage
 }
-
-export function extractErrorMessage(error: any, fallback: string = 'An error occurred'): string {
-  if (!error) return fallback
-  
-  if (error.response?.data) {
-    const data = error.response.data
-    if (data.detail) {
-      if (typeof data.detail === 'string') return data.detail
-      if (Array.isArray(data.detail)) {
-        return data.detail.map((err: any) => err.msg || 'Invalid input').join(', ')
-      }
-    }
-    if (data.message && typeof data.message === 'string') return data.message
-  }
-  
-  if (error.message && typeof error.message === 'string') return error.message
-  
-  return fallback
-}
-
