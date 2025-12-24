@@ -9,7 +9,8 @@ import {
   EyeOff, 
   CheckCircle2, 
   XCircle,
-  Loader2
+  Loader2,
+  Sparkles
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { extractErrorMessage } from '@/lib/utils'
@@ -41,8 +42,6 @@ export const SignupPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
-  
-  // Removed OTP state - using direct password signup
 
   // Password strength calculation
   const calculatePasswordStrength = (password: string): PasswordStrength => {
@@ -53,10 +52,10 @@ export const SignupPage: React.FC = () => {
     if (/\d/.test(password)) score++
     if (/[^a-zA-Z0-9]/.test(password)) score++
 
-    if (score <= 2) return { score, label: 'Weak', color: 'text-danger' }
-    if (score <= 3) return { score, label: 'Fair', color: 'text-warning' }
-    if (score <= 4) return { score, label: 'Good', color: 'text-primary' }
-    return { score, label: 'Strong', color: 'text-success' }
+    if (score <= 2) return { score, label: 'Weak', color: 'bg-destructive' }
+    if (score <= 3) return { score, label: 'Fair', color: 'bg-warning' }
+    if (score <= 4) return { score, label: 'Good', color: 'bg-primary' }
+    return { score, label: 'Strong', color: 'bg-success' }
   }
 
   const passwordStrength = calculatePasswordStrength(formData.password)
@@ -108,7 +107,6 @@ export const SignupPage: React.FC = () => {
       return await api.signup(formData.name, formData.email, formData.phone, formData.password)
     },
     onSuccess: () => {
-      // Don't auto-login, redirect to login page
       toast.success('Account created successfully! Please log in.', {
         icon: '✨',
         duration: 4000,
@@ -119,7 +117,6 @@ export const SignupPage: React.FC = () => {
           color: '#10b981',
         },
       })
-      // Redirect to login page
       navigate('/login')
     },
     onError: (error: any) => {
@@ -128,9 +125,6 @@ export const SignupPage: React.FC = () => {
     },
   })
 
-  // Verify OTP mutation - REMOVED, using direct password signup
-  // const verifyOtpMutation = useMutation({ ... })
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
@@ -138,25 +132,33 @@ export const SignupPage: React.FC = () => {
     }
   }
 
-  // Removed handleVerifyOtp - no longer needed
-
   const handleChange = (field: keyof typeof formData) => (value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
-
-  // Removed OTP verification screen - direct signup now
 
   return (
     <AuthLayout title="Create Your Account">
       <AuthCard>
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Create Your Account</h1>
+          {/* Icon */}
+          <div className="inline-block mb-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/30 rounded-full blur-2xl animate-pulse" />
+              <div className="relative w-16 h-16 bg-gradient-to-br from-primary/20 to-cyan-500/20 rounded-full flex items-center justify-center border border-primary/30">
+                <Sparkles className="h-8 w-8 text-primary" />
+              </div>
+            </div>
+          </div>
+          
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Create Your Account
+          </h1>
           <p className="text-muted-foreground">
             Join thousands of satisfied customers
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
           {/* Full Name */}
           <AnimatedInput
             type="text"
@@ -166,6 +168,7 @@ export const SignupPage: React.FC = () => {
             onChange={handleChange('name')}
             leftIcon={<User className="h-5 w-5" />}
             autoComplete="off"
+            success={formData.name.trim().length > 2}
             required
           />
 
@@ -178,6 +181,7 @@ export const SignupPage: React.FC = () => {
             onChange={handleChange('email')}
             leftIcon={<Mail className="h-5 w-5" />}
             autoComplete="off"
+            success={/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)}
             required
           />
 
@@ -192,7 +196,7 @@ export const SignupPage: React.FC = () => {
           />
 
           {/* Password */}
-          <div>
+          <div className="space-y-3">
             <AnimatedInput
               type={showPassword ? 'text' : 'password'}
               label="Password"
@@ -219,53 +223,64 @@ export const SignupPage: React.FC = () => {
             
             {/* Password Strength Indicator */}
             {formData.password && (
-              <div className="mt-2 space-y-2">
+              <div className="space-y-2 animate-fade-in">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Password strength:</span>
-                  <span className={`font-medium ${passwordStrength.color}`}>
+                  <span className="text-muted-foreground font-medium">Password strength:</span>
+                  <span className={`font-semibold ${
+                    passwordStrength.score <= 2 ? 'text-destructive' :
+                    passwordStrength.score <= 3 ? 'text-warning' :
+                    passwordStrength.score <= 4 ? 'text-primary' : 'text-success'
+                  }`}>
                     {passwordStrength.label}
                   </span>
                 </div>
-                <div className="flex gap-1">
+                
+                {/* Strength bars */}
+                <div className="flex gap-1.5">
                   {[1, 2, 3, 4, 5].map((level) => (
                     <div
                       key={level}
-                      className={`h-1 flex-1 rounded-full transition-colors ${
+                      className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
                         level <= passwordStrength.score
-                          ? passwordStrength.score <= 2
-                            ? 'bg-danger'
-                            : passwordStrength.score <= 3
-                            ? 'bg-warning'
-                            : passwordStrength.score <= 4
-                            ? 'bg-primary'
-                            : 'bg-success'
+                          ? passwordStrength.color
                           : 'bg-muted'
                       }`}
+                      style={{
+                        transform: level <= passwordStrength.score ? 'scaleY(1)' : 'scaleY(0.5)',
+                      }}
                     />
                   ))}
                 </div>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <div className="flex items-center gap-2">
+                
+                {/* Requirements checklist */}
+                <div className="text-xs space-y-1.5 pt-2">
+                  <div className={`flex items-center gap-2 transition-colors ${
+                    formData.password.length >= 8 ? 'text-success' : 'text-muted-foreground'
+                  }`}>
                     {formData.password.length >= 8 ? (
-                      <CheckCircle2 className="h-3 w-3 text-success" />
+                      <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
                     ) : (
-                      <XCircle className="h-3 w-3 text-muted-foreground" />
+                      <XCircle className="h-3.5 w-3.5 flex-shrink-0" />
                     )}
                     <span>At least 8 characters</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-2 transition-colors ${
+                    /[A-Z]/.test(formData.password) && /[a-z]/.test(formData.password) ? 'text-success' : 'text-muted-foreground'
+                  }`}>
                     {/[A-Z]/.test(formData.password) && /[a-z]/.test(formData.password) ? (
-                      <CheckCircle2 className="h-3 w-3 text-success" />
+                      <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
                     ) : (
-                      <XCircle className="h-3 w-3 text-muted-foreground" />
+                      <XCircle className="h-3.5 w-3.5 flex-shrink-0" />
                     )}
                     <span>Uppercase and lowercase letters</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-2 transition-colors ${
+                    /\d/.test(formData.password) ? 'text-success' : 'text-muted-foreground'
+                  }`}>
                     {/\d/.test(formData.password) ? (
-                      <CheckCircle2 className="h-3 w-3 text-success" />
+                      <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
                     ) : (
-                      <XCircle className="h-3 w-3 text-muted-foreground" />
+                      <XCircle className="h-3.5 w-3.5 flex-shrink-0" />
                     )}
                     <span>At least one number</span>
                   </div>
@@ -302,21 +317,21 @@ export const SignupPage: React.FC = () => {
           />
 
           {/* Terms and Conditions */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-xl border border-border/50">
             <input
               type="checkbox"
               id="terms"
               checked={acceptedTerms}
               onChange={(e) => setAcceptedTerms(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
+              className="mt-0.5 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring transition-all"
             />
             <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
               I agree to the{' '}
-              <Link to="/terms" className="text-primary hover:underline">
+              <Link to="/terms" className="text-primary hover:underline font-medium">
                 Terms of Service
               </Link>{' '}
               and{' '}
-              <Link to="/privacy" className="text-primary hover:underline">
+              <Link to="/privacy" className="text-primary hover:underline font-medium">
                 Privacy Policy
               </Link>
             </label>
@@ -334,7 +349,7 @@ export const SignupPage: React.FC = () => {
           </Button>
 
           {/* Login Link */}
-          <div className="text-center text-sm">
+          <div className="text-center text-sm pt-4 border-t border-border/50">
             <span className="text-muted-foreground">Already have an account? </span>
             <Link to="/login" className="text-primary hover:underline font-medium">
               Sign in
@@ -342,6 +357,17 @@ export const SignupPage: React.FC = () => {
           </div>
         </form>
       </AuthCard>
+
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </AuthLayout>
   )
 }

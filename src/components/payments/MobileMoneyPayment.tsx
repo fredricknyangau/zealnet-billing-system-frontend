@@ -141,7 +141,8 @@ export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: Mobi
         setStatus(data.status);
         setMessage(data.message);
       } else {
-        setError(data.message || 'Failed to initiate payment');
+        const errorMessage = (data as any).detail || data.message || 'Failed to initiate payment';
+        setError(errorMessage);
         setIsProcessing(false);
       }
     } catch (err) {

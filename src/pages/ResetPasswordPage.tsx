@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { Key, Lock, CheckCircle2, Shield } from 'lucide-react'
+import { Lock, CheckCircle2, Shield, Sparkles } from 'lucide-react'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { AnimatedInput } from '@/components/auth/AnimatedInput'
-import { PasswordStrengthIndicator } from '@/components/ui/PasswordStrengthIndicator'
+import { OTPInput } from '@/components/auth/OTPInput'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import toast from 'react-hot-toast'
@@ -34,7 +34,7 @@ export const ResetPasswordPage: React.FC = () => {
     e.preventDefault()
 
     const sanitizedOtp = sanitizeText(formData.otp)
-    const sanitizedPassword = formData.newPassword // Don't sanitize password
+    const sanitizedPassword = formData.newPassword
 
     // Validation
     if (sanitizedOtp.length !== 6) {
@@ -67,7 +67,6 @@ export const ResetPasswordPage: React.FC = () => {
         },
       })
       
-      // Navigate after showing success
       setTimeout(() => {
         navigate('/login')
       }, 2000)
@@ -78,8 +77,8 @@ export const ResetPasswordPage: React.FC = () => {
     }
   }
 
-  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.value }))
+  const handleChange = (field: keyof typeof formData) => (value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   const passwordsMatch = formData.newPassword && formData.confirmPassword && 
@@ -92,133 +91,201 @@ export const ResetPasswordPage: React.FC = () => {
       showBranding={false}
     >
       <AuthCard>
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 flex items-center justify-center animate-scale-in">
-            <Shield className="h-8 w-8 text-foreground" />
-          </div>
-        </div>
-
         {isSuccess ? (
-          <div className="text-center space-y-4 animate-fade-in">
-            <div className="flex justify-center">
-              <CheckCircle2 className="h-16 w-16 text-green-400 animate-scale-in" />
+          /* Success State */
+          <div className="text-center space-y-6 animate-fade-in py-8">
+            <div className="relative inline-block">
+              {/* Animated glow rings */}
+              <div className="absolute inset-0 bg-success/30 rounded-full blur-3xl animate-ping" />
+              <div className="absolute inset-0 bg-success/20 rounded-full blur-2xl animate-pulse" />
+              
+              {/* Success icon with sparkles */}
+              <div className="relative w-24 h-24 bg-gradient-to-br from-success/20 to-success/10 rounded-full flex items-center justify-center mx-auto border-2 border-success/30">
+                <CheckCircle2 className="h-12 w-12 text-success animate-scale-in" />
+                
+                {/* Floating sparkles */}
+                {[...Array(6)].map((_, i) => (
+                  <Sparkles
+                    key={i}
+                    className="absolute h-4 w-4 text-success animate-float"
+                    style={{
+                      top: `${20 + Math.random() * 60}%`,
+                      left: `${20 + Math.random() * 60}%`,
+                      animationDelay: `${i * 200}ms`,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-            <h3 className="text-xl font-semibold text-foreground">Password Reset!</h3>
-            <p className="text-muted-foreground">
-              Your password has been successfully reset. Redirecting to login...
-            </p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Phone Display */}
-            <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl">
-              <Key className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <p className="text-sm text-muted-foreground">
-                Resetting password for <span className="font-semibold text-foreground">{phoneFromUrl}</span>
+            
+            <div>
+              <h3 className="text-2xl font-bold mb-2 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Password Reset!
+              </h3>
+              <p className="text-muted-foreground">
+                Your password has been successfully reset
               </p>
             </div>
 
-            {/* OTP Input */}
-            <AnimatedInput
-              type="text"
-              label="OTP Code"
-              placeholder="000000"
-              value={formData.otp}
-              onChange={handleChange('otp')}
-              leftIcon={<Key className="h-5 w-5" />}
-              maxLength={6}
-              success={formData.otp.length === 6}
-              disabled={isLoading}
-              autoFocus
-              required
-            />
-
-            {/* New Password */}
-            <AnimatedInput
-              type="password"
-              label="New Password"
-              placeholder="Enter new password"
-              value={formData.newPassword}
-              onChange={handleChange('newPassword')}
-              leftIcon={<Lock className="h-5 w-5" />}
-              showPasswordToggle
-              disabled={isLoading}
-              required
-            />
-
-            {/* Password Strength Indicator */}
-            {formData.newPassword && (
-              <div className="animate-fade-in">
-                <PasswordStrengthIndicator password={formData.newPassword} />
+            {/* Redirect message */}
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+              <span>Redirecting to login...</span>
+            </div>
+          </div>
+        ) : (
+          /* Form State */
+          <>
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/30 rounded-2xl blur-2xl animate-pulse" />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-primary/20 to-cyan-500/20 rounded-2xl border border-primary/30 flex items-center justify-center">
+                  <Shield className="h-10 w-10 text-primary" />
+                </div>
               </div>
-            )}
+            </div>
 
-            {/* Confirm Password */}
-            <AnimatedInput
-              type="password"
-              label="Confirm Password"
-              placeholder="Confirm new password"
-              value={formData.confirmPassword}
-              onChange={handleChange('confirmPassword')}
-              leftIcon={<Lock className="h-5 w-5" />}
-              showPasswordToggle
-              success={!!passwordsMatch}
-              error={
-                formData.confirmPassword && formData.newPassword !== formData.confirmPassword
-                  ? 'Passwords do not match'
-                  : undefined
-              }
-              disabled={isLoading}
-              required
-            />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Phone Display */}
+              <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl border border-border/50">
+                <Shield className="h-5 w-5 text-primary flex-shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  Resetting password for{' '}
+                  <span className="font-semibold text-foreground">{phoneFromUrl}</span>
+                </p>
+              </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              fullWidth
-              disabled={
-                !formData.otp ||
-                !formData.newPassword ||
-                !formData.confirmPassword ||
-                formData.newPassword !== formData.confirmPassword ||
-                isLoading
-              }
-              className="relative overflow-hidden group bg-primary/20 hover:bg-primary/30 border border-primary/30 text-foreground font-semibold py-3 rounded-xl transition-all duration-300"
-            >
-              {isLoading ? (
-                <>
-                  <Shield className="h-5 w-5 animate-pulse mr-2" />
-                  Resetting Password...
-                </>
-              ) : (
-                <>
-                  Reset Password
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                </>
-              )}
-            </Button>
+              {/* OTP Input */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-foreground">
+                  Enter OTP Code
+                </label>
+                <OTPInput
+                  length={6}
+                  value={formData.otp}
+                  onChange={handleChange('otp')}
+                  disabled={isLoading}
+                  autoFocus
+                />
+              </div>
 
-            {/* Resend OTP */}
-            <button
-              type="button"
-              onClick={() => navigate('/forgot-password')}
-              className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Didn't receive OTP? <span className="font-semibold">Resend</span>
-            </button>
-          </form>
+              {/* New Password */}
+              <AnimatedInput
+                type="password"
+                label="New Password"
+                placeholder="Enter new password"
+                value={formData.newPassword}
+                onChange={handleChange('newPassword')}
+                leftIcon={<Lock className="h-5 w-5" />}
+                showPasswordToggle
+                disabled={isLoading}
+                required
+                hint="Must be at least 8 characters"
+              />
+
+              {/* Confirm Password */}
+              <AnimatedInput
+                type="password"
+                label="Confirm Password"
+                placeholder="Confirm new password"
+                value={formData.confirmPassword}
+                onChange={handleChange('confirmPassword')}
+                leftIcon={<Lock className="h-5 w-5" />}
+                showPasswordToggle
+                success={!!passwordsMatch}
+                error={
+                  formData.confirmPassword && formData.newPassword !== formData.confirmPassword
+                    ? 'Passwords do not match'
+                    : undefined
+                }
+                disabled={isLoading}
+                required
+              />
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                fullWidth
+                disabled={
+                  !formData.otp ||
+                  formData.otp.length !== 6 ||
+                  !formData.newPassword ||
+                  !formData.confirmPassword ||
+                  formData.newPassword !== formData.confirmPassword ||
+                  isLoading
+                }
+                isLoading={isLoading}
+                icon={<Shield className="h-5 w-5" />}
+              >
+                {isLoading ? 'Resetting Password...' : 'Reset Password'}
+              </Button>
+
+              {/* Resend OTP */}
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-all duration-300 py-2 rounded-lg hover:bg-muted/50"
+              >
+                Didn't receive OTP? <span className="font-semibold text-primary">Resend</span>
+              </button>
+            </form>
+
+            {/* Sign In Link */}
+            <div className="mt-6 text-center pt-6 border-t border-border/50">
+              <p className="text-sm text-muted-foreground">
+                Remember your password?{' '}
+                <Link to="/login" className="text-primary font-semibold hover:underline transition-all">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </>
         )}
 
-        {/* Sign In Link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Remember your password?{' '}
-            <Link to="/login" className="text-foreground font-semibold hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
+        <style>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes scale-in {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          
+          @keyframes float {
+            0%, 100% { 
+              transform: translate(0, 0) rotate(0deg) scale(0);
+              opacity: 0;
+            }
+            25% {
+              transform: translate(10px, -20px) rotate(90deg) scale(1);
+              opacity: 1;
+            }
+            50% {
+              transform: translate(-10px, -40px) rotate(180deg) scale(1);
+              opacity: 1;
+            }
+            75% {
+              transform: translate(15px, -60px) rotate(270deg) scale(1);
+              opacity: 0.5;
+            }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 0.4s ease-out;
+          }
+          
+          .animate-scale-in {
+            animation: scale-in 0.5s ease-out;
+          }
+          
+          .animate-float {
+            animation: float 3s ease-in-out infinite;
+          }
+        `}</style>
       </AuthCard>
     </AuthLayout>
   )

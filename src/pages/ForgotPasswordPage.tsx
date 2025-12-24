@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Smartphone, ArrowLeft, Send, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Send, CheckCircle2, Mail } from 'lucide-react'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
-import { AnimatedInput } from '@/components/auth/AnimatedInput'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 import { Button } from '@/components/ui/Button'
 import { api } from '@/lib/api'
 import toast from 'react-hot-toast'
@@ -58,84 +58,127 @@ export const ForgotPasswordPage: React.FC = () => {
       showBranding={false}
     >
       <AuthCard>
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 flex items-center justify-center animate-scale-in">
-            <Send className="h-8 w-8 text-foreground" />
-          </div>
-        </div>
-
         {isSuccess ? (
-          <div className="text-center space-y-4 animate-fade-in">
-            <div className="flex justify-center">
-              <CheckCircle2 className="h-16 w-16 text-green-400 animate-scale-in" />
+          /* Success State */
+          <div className="text-center space-y-6 animate-fade-in py-8">
+            <div className="relative inline-block">
+              {/* Animated glow rings */}
+              <div className="absolute inset-0 bg-success/30 rounded-full blur-3xl animate-ping" />
+              <div className="absolute inset-0 bg-success/20 rounded-full blur-2xl animate-pulse" />
+              
+              {/* Success icon */}
+              <div className="relative w-24 h-24 bg-gradient-to-br from-success/20 to-success/10 rounded-full flex items-center justify-center mx-auto border-2 border-success/30">
+                <CheckCircle2 className="h-12 w-12 text-success animate-scale-in" />
+              </div>
             </div>
-            <h3 className="text-xl font-semibold text-foreground">OTP Sent!</h3>
-            <p className="text-muted-foreground">
-              Check your phone for the verification code
-            </p>
+            
+            <div>
+              <h3 className="text-2xl font-bold mb-2 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                Check Your Phone!
+              </h3>
+              <p className="text-muted-foreground">
+                We've sent a verification code to
+              </p>
+              <p className="font-semibold text-primary mt-1">
+                {phone}
+              </p>
+            </div>
+
+            {/* Redirect message */}
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+              <span>Redirecting...</span>
+            </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Instructions */}
-            <p className="text-center text-muted-foreground text-sm">
-              Enter your phone number and we'll send you an OTP to reset your password
-            </p>
+          /* Form State */
+          <>
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/30 rounded-2xl blur-2xl animate-pulse" />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-primary/20 to-cyan-500/20 rounded-2xl border border-primary/30 flex items-center justify-center">
+                  <Mail className="h-10 w-10 text-primary" />
+                </div>
+              </div>
+            </div>
 
-            {/* Phone Input */}
-            <AnimatedInput
-              type="tel"
-              label="Phone Number"
-              placeholder="+254 700 000 000"
-              value={phone}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-              leftIcon={<Smartphone className="h-5 w-5" />}
-              disabled={isLoading}
-              autoFocus
-              required
-            />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Instructions */}
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">
+                  Reset Your Password
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Enter your phone number and we'll send you an OTP to reset your password
+                </p>
+              </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              fullWidth
-              disabled={!phone.trim() || isLoading}
-              className="relative overflow-hidden group bg-primary/20 hover:bg-primary/30 border border-primary/30 text-foreground font-semibold py-3 rounded-xl transition-all duration-300"
-            >
-              {isLoading ? (
-                <>
-                  <Send className="h-5 w-5 animate-pulse mr-2" />
-                  Sending OTP...
-                </>
-              ) : (
-                <>
-                  Send OTP
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                </>
-              )}
-            </Button>
+              {/* Phone Input */}
+              <PhoneInput
+                label="Phone Number"
+                placeholder="712 345 678"
+                value={phone}
+                onChange={setPhone}
+                disabled={isLoading}
+                required
+                defaultCountry="KE"
+              />
 
-            {/* Back to Login */}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Login
-            </button>
-          </form>
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                fullWidth
+                disabled={!phone.trim() || isLoading}
+                isLoading={isLoading}
+                icon={<Send className="h-5 w-5" />}
+              >
+                {isLoading ? 'Sending OTP...' : 'Send OTP'}
+              </Button>
+
+              {/* Back to Login */}
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 py-2 rounded-lg hover:bg-muted/50"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Login
+              </button>
+            </form>
+
+            {/* Sign In Link */}
+            <div className="mt-6 text-center pt-6 border-t border-border/50">
+              <p className="text-sm text-muted-foreground">
+                Remember your password?{' '}
+                <Link to="/login" className="text-primary font-semibold hover:underline transition-all">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </>
         )}
 
-        {/* Sign In Link */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Remember your password?{' '}
-            <Link to="/login" className="text-foreground font-semibold hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
+        <style>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes scale-in {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 0.4s ease-out;
+          }
+          
+          .animate-scale-in {
+            animation: scale-in 0.5s ease-out;
+          }
+        `}</style>
       </AuthCard>
     </AuthLayout>
   )
