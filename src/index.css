@@ -151,7 +151,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: "Outfit", system-ui, sans-serif;
   }
 }
@@ -199,8 +204,12 @@
   }
 
   @keyframes fadeInSoft {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -210,5 +219,18 @@
   .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
+  }
+
+  /* Mobile touch optimization */
+  .touch-icon-button {
+    @apply min-h-[44px] min-w-[44px] inline-flex items-center justify-center;
+  }
+
+  .text-mobile-safe {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-mobile-label {
+    @apply text-xs sm:text-sm;
   }
 }

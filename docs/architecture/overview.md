@@ -2,7 +2,7 @@
 
 ## Frontend Architecture
 
-This document outlines the architecture and design decisions for the WiFi Billing Platform frontend.
+This document outlines the architecture and design decisions for the ZealNet ISP Platform frontend.
 
 ## Core Principles
 

@@ -38,14 +38,14 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Submit Dispute" size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="p-4 bg-warning-50 dark:bg-warning-900/20 rounded-lg border border-warning-200 dark:border-warning-800">
+        <div className="p-4 bg-warning/10 rounded-lg border border-warning/20">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-warning-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-warning-900 dark:text-warning-200">
+              <p className="text-sm font-medium text-foreground">
                 Dispute Process
               </p>
-              <p className="text-xs text-warning-700 dark:text-warning-300 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Disputes are reviewed within 24 hours. You will receive a notification once your
                 dispute has been resolved.
               </p>
@@ -54,20 +54,20 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
         </div>
 
         {transactionId && (
-          <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Transaction ID</p>
-            <p className="text-sm font-mono text-gray-900 dark:text-white">{transactionId}</p>
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">Transaction ID</p>
+            <p className="text-sm font-mono text-foreground">{transactionId}</p>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Reason for Dispute
           </label>
           <select
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full px-4 py-2 rounded-lg border-2 border-border bg-background text-foreground"
             required
           >
             <option value="">Select a reason</option>
@@ -80,14 +80,14 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-foreground mb-2">
             Description
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
+            className="w-full px-4 py-2 rounded-lg border-2 border-border bg-background text-foreground resize-none"
             placeholder="Please provide details about your dispute..."
             required
           />

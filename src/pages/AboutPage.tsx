@@ -13,7 +13,7 @@ export const AboutPage: React.FC = () => {
         <div className="mb-12">
           <h2 className="text-2xl font-bold font-display mb-4">Our Mission</h2>
           <p className="text-muted-foreground leading-relaxed">
-            WiFi Billing Platform is dedicated to making internet access simple, affordable, and accessible 
+            ZealNet ISP Platform is dedicated to making internet access simple, affordable, and accessible 
             across Africa. We believe that connectivity is a fundamental right, and we're building the 
             infrastructure to make it happen.
           </p>
@@ -50,7 +50,7 @@ export const AboutPage: React.FC = () => {
         <div className="mb-12">
           <h2 className="text-2xl font-bold font-display mb-4">Our Story</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            Founded in 2024, WiFi Billing Platform emerged from a simple observation: accessing WiFi 
+            Founded in 2024, ZealNet ISP Platform emerged from a simple observation: accessing WiFi 
             in public spaces across Africa was unnecessarily complicated. Long registration forms, 
             complex payment processes, and unreliable connections frustrated millions of users daily.
           </p>

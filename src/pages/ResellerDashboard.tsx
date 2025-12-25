@@ -157,7 +157,7 @@ export const ResellerDashboard: React.FC = () => {
                     navigate(item.path)
                     setSidebarOpen(false)
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 min-h-[52px] rounded-lg transition-colors ${
                     isActive
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground hover:bg-muted'

@@ -13,7 +13,7 @@ export const TermsPage: React.FC = () => {
             <strong>Last updated:</strong> December 17, 2025
           </p>
           <p className="text-muted-foreground mt-4">
-            Please read these Terms of Service carefully before using our WiFi Billing Platform.
+            Please read these Terms of Service carefully before using our ZealNet ISP Platform.
           </p>
         </div>
 
@@ -28,7 +28,7 @@ export const TermsPage: React.FC = () => {
         <section>
           <h2 className="text-2xl font-bold font-display mb-4">2. Service Description</h2>
           <p className="text-muted-foreground leading-relaxed">
-            WiFi Billing Platform provides internet access through WiFi hotspots with integrated mobile 
+            ZealNet ISP Platform provides internet access through WiFi hotspots with integrated mobile 
             money payment processing. We offer various data plans with different speeds, data limits, 
             and durations.
           </p>
@@ -89,7 +89,7 @@ export const TermsPage: React.FC = () => {
         <section>
           <h2 className="text-2xl font-display mb-4">7. Limitation of Liability</h2>
           <p className="text-muted-foreground leading-relaxed">
-            To the maximum extent permitted by law, WiFi Billing Platform shall not be liable for any 
+            To the maximum extent permitted by law, ZealNet ISP Platform shall not be liable for any 
             indirect, incidental, special, or consequential damages arising from your use of our services. 
             Our total liability shall not exceed the amount you paid for the service.
           </p>

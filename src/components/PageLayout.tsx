@@ -32,7 +32,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, descrip
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <Wifi className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold font-display hidden sm:inline">WiFi Billing</span>
+                <span className="text-lg font-bold font-display hidden sm:inline">ZealNet</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({ children, title, descrip
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 WiFi Billing Platform. All rights reserved.
+              © 2025 ZealNet Platform. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <a href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">

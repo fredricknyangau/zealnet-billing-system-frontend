@@ -54,7 +54,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
           email: invoice.customerEmail,
         },
         company: {
-          name: 'WiFi Billing Platform',
+          name: 'ZealNet Platform',
           address: '123 Business St, Nairobi, Kenya',
           phone: '+254 700 000 000',
           email: 'billing@wifibilling.com',

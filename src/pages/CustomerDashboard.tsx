@@ -27,7 +27,6 @@ import { DeviceTrustBadge } from '@/components/security/DeviceTrustBadge'
 import { LoginAlertsContainer } from '@/components/security/LoginAlert'
 import { DisputeModal } from '@/components/DisputeModal'
 import { UsageChart } from '@/components/dashboard/UsageChart'
-import { WalletTopUpModal } from '@/components/dashboard/WalletTopUpModal'
 import { ProfileSettingsModal } from '@/components/dashboard/ProfileSettingsModal'
 import { SpeedTestWidget } from '@/components/dashboard/SpeedTestWidget'
 import { LiveUsageWidget } from '@/components/dashboard/LiveUsageWidget'
@@ -44,8 +43,6 @@ export const CustomerDashboard: React.FC = () => {
   const [showBuyMoreModal, setShowBuyMoreModal] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showDisputeModal, setShowDisputeModal] = useState(false)
-
-  const [showTopUpModal, setShowTopUpModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const { showNotification, requestPermission } = usePushNotifications()
@@ -170,7 +167,7 @@ export const CustomerDashboard: React.FC = () => {
   }
 
   const handleTopUp = () => {
-    setShowTopUpModal(true)
+    navigate('/topup')
   }
 
   const handleSettings = () => {
@@ -196,8 +193,8 @@ export const CustomerDashboard: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <Button variant="ghost" size="sm" onClick={handleSettings} icon={<Settings className="h-4 w-4" />} />
-              <Button variant="ghost" size="sm" onClick={handleLogout} icon={<LogOut className="h-4 w-4" />} />
+              <Button variant="ghost" size="sm" className="touch-target" onClick={handleSettings} icon={<Settings className="h-4 w-4" />} />
+              <Button variant="ghost" size="sm" className="touch-target" onClick={handleLogout} icon={<LogOut className="h-4 w-4" />} />
             </div>
           </div>
         </div>
@@ -541,7 +538,6 @@ export const CustomerDashboard: React.FC = () => {
         />
       )}
 
-      <WalletTopUpModal isOpen={showTopUpModal} onClose={() => setShowTopUpModal(false)} />
       <ProfileSettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
     </div>
   )

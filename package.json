@@ -2,7 +2,7 @@
   "name": "wifi-billing-platform",
   "version": "1.0.0",
   "type": "module",
-  "description": "AI-Powered WiFi Billing & Hotspot Platform (Africa-First)",
+  "description": "AI-Powered ISP Billing & Hotspot Platform (Africa-First)",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

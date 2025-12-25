@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines all performance optimizations implemented to achieve 100% compliance with the WiFi Billing Platform requirements.
+This document outlines all performance optimizations implemented to achieve 100% compliance with the ZealNet ISP Platform requirements.
 
 ---
 

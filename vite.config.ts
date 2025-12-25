@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'WiFi Billing Platform',
-        short_name: 'WiFi Billing',
+        name: 'ZealNet ISP Platform',
+        short_name: 'ZealNet',
         description: 'AI-Powered WiFi Billing & Hotspot Platform',
         theme_color: '#2563eb',
         background_color: '#ffffff',

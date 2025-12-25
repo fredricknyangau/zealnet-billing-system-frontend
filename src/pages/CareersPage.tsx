@@ -11,7 +11,7 @@ export const CareersPage: React.FC = () => {
       department: 'Engineering',
       location: 'Nairobi, Kenya',
       type: 'Full-time',
-      description: 'Build scalable backend systems for our WiFi billing platform using Python, FastAPI, and PostgreSQL.'
+      description: 'Build scalable backend systems for our ZealNet ISP platform using Python, FastAPI, and PostgreSQL.'
     },
     {
       title: 'Frontend Developer',

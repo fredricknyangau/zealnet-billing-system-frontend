@@ -64,9 +64,9 @@ export const SettingsPage: React.FC = () => {
                 </p>
               </div>
               <button
-                className="relative inline-flex h-6 w-11 items-center rounded-full bg-primary"
+                className="relative inline-flex h-8 w-14 items-center rounded-full bg-primary touch-target"
               >
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-6" />
+                <span className="inline-block h-6 w-6 transform rounded-full bg-white translate-x-7 transition-transform" />
               </button>
             </div>
             <div className="flex items-center justify-between">
@@ -77,9 +77,9 @@ export const SettingsPage: React.FC = () => {
                 </p>
               </div>
               <button
-                className="relative inline-flex h-6 w-11 items-center rounded-full bg-primary"
+                className="relative inline-flex h-8 w-14 items-center rounded-full bg-primary touch-target"
               >
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-6" />
+                <span className="inline-block h-6 w-6 transform rounded-full bg-white translate-x-7 transition-transform" />
               </button>
             </div>
             <div className="flex items-center justify-between">
@@ -90,9 +90,9 @@ export const SettingsPage: React.FC = () => {
                 </p>
               </div>
               <button
-                className="relative inline-flex h-6 w-11 items-center rounded-full bg-muted"
+                className="relative inline-flex h-8 w-14 items-center rounded-full bg-muted touch-target"
               >
-                <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-1" />
+                <span className="inline-block h-6 w-6 transform rounded-full bg-white translate-x-1 transition-transform" />
               </button>
             </div>
           </CardContent>

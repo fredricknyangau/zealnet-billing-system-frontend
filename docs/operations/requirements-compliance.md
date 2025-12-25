@@ -2,7 +2,7 @@
 ## AI-Powered WiFi Billing & Hotspot Platform (Africa-First)
 
 **Generated:** $(date)  
-**Project:** WiFi Billing Platform Frontend  
+**Project:** ZealNet ISP Platform Frontend  
 **Status:** Partial Compliance - Core Features Implemented, Advanced Features Pending
 
 ---

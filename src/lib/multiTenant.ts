@@ -18,7 +18,7 @@ export function applyTenantTheme(tenant: Tenant) {
 
   // Update page title if domain is set
   if (tenant.domain) {
-    document.title = `${tenant.name} - WiFi Billing`
+    document.title = `${tenant.name} - ZealNet`
   }
 }
 

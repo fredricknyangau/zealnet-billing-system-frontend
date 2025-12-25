@@ -155,7 +155,7 @@ export const Landing: React.FC = () => {
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                 <Wifi className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold font-display">WiFi Billing</span>
+              <span className="text-xl font-bold font-display">ZealNet</span>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
@@ -474,7 +474,7 @@ export const Landing: React.FC = () => {
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <Wifi className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold font-display">WiFi Billing</span>
+                <span className="text-lg font-bold font-display">ZealNet</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 The future of WiFi access and billing in Africa.
@@ -511,7 +511,7 @@ export const Landing: React.FC = () => {
           
           <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2025 WiFi Billing Platform. All rights reserved.
+              © 2025 ZealNet Platform. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <ThemeToggle />

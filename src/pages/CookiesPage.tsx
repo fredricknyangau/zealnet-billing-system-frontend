@@ -41,7 +41,7 @@ export const CookiesPage: React.FC = () => {
             <strong>Last updated:</strong> December 17, 2025
           </p>
           <p className="text-muted-foreground mt-4">
-            This Cookie Policy explains how WiFi Billing Platform uses cookies and similar technologies.
+            This Cookie Policy explains how ZealNet ISP Platform uses cookies and similar technologies.
           </p>
         </div>
 

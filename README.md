@@ -1,6 +1,6 @@
-# WiFi Billing Platform - Frontend
+# ZealNet ISP Platform - Frontend
 
-AI-Powered WiFi Billing & Hotspot Platform (Africa-First) - Production-ready SaaS frontend.
+AI-Powered ISP Billing & Hotspot Platform (Africa-First) - Production-ready SaaS frontend.
 
 ## Features
 
@@ -84,6 +84,7 @@ src/
 ## Key Interfaces
 
 ### 1. Captive Portal (`/portal`)
+
 - Voucher code login
 - Phone number + OTP authentication
 - M-Pesa STK Push payment
@@ -91,6 +92,7 @@ src/
 - Plan selection
 
 ### 2. Customer Dashboard (`/dashboard`)
+
 - Real-time usage tracking
 - Device management
 - Payment history
@@ -98,6 +100,7 @@ src/
 - Plan management
 
 ### 3. Admin Dashboard (`/admin`)
+
 - Network metrics
 - Customer management
 - Billing & payments
@@ -106,6 +109,7 @@ src/
 - Reports & analytics
 
 ### 4. Reseller Dashboard (`/reseller`)
+
 - Multi-tenant management
 - White-label configuration
 - Commission tracking
@@ -146,6 +150,7 @@ npm run lint
 ## Deployment
 
 The app is optimized for deployment on:
+
 - Vercel
 - Netlify
 - AWS S3 + CloudFront
@@ -154,6 +159,7 @@ The app is optimized for deployment on:
 ### Build Output
 
 The `dist/` folder contains the production build with:
+
 - Optimized JavaScript bundles
 - CSS extraction
 - PWA manifest and service worker
@@ -163,7 +169,31 @@ The `dist/` folder contains the production build with:
 
 Proprietary - All rights reserved
 
+## 📖 Documentation
+
+Complete documentation is available in the [`docs/`](docs/) directory.
+
+### 🏗️ Architecture
+
+- **[Architecture Overview](docs/architecture/overview.md)** - Frontend architecture and design patterns
+- **[Pages Summary](docs/architecture/pages.md)** - Overview of all application pages
+- **[Components Summary](docs/architecture/components.md)** - UI components and button inventory
+
+### 💻 Development
+
+- **[Mock Data Guide](docs/development/mock-data.md)** - Working with mock data for development
+- **[Performance Guide](docs/development/performance.md)** - Performance optimization techniques
+- **[Quick Test Guide](docs/development/quick-test.md)** - Quick testing procedures
+
+### 🧪 Testing
+
+- **[Testing Guide](docs/testing/testing-guide.md)** - Comprehensive testing documentation
+
+### 🛠️ Operations
+
+- **[Requirements Compliance](docs/operations/requirements-compliance.md)** - Requirements compliance checklist
+- **[Troubleshooting](docs/operations/troubleshooting.md)** - Common issues and solutions
+
 ## Support
 
 For issues and questions, please contact the development team.
-
