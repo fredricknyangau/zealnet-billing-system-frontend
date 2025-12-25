@@ -10,12 +10,11 @@ import {
   Calendar,
   FileText,
   BarChart3,
-  PieChart,
   Activity
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+// Card imports removed (unused)
 import { Badge } from '@/components/ui/Badge'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { formatCurrency, formatBytes } from '@/lib/utils'
@@ -105,7 +104,7 @@ export const AdminReports: React.FC = () => {
   }
 
   const handleExportPDF = () => {
-    toast.info('PDF export will be implemented with jsPDF library')
+    toast('PDF export will be implemented with jsPDF library', { icon: 'ℹ️' })
   }
 
   const reportTypes = [

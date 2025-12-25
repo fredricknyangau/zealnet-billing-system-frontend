@@ -291,7 +291,7 @@ export const AdminDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const { logout } = useAuthStore()
+  const logout = useAuthStore(state => state.logout)  // Use selector to prevent re-renders
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const menuItems = [

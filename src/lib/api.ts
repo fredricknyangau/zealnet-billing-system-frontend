@@ -150,7 +150,23 @@ class ApiClient {
       return mockApiResponses.plans()
     }
     const { data } = await this.client.get('/plans')
-    return data
+    
+    // Transform backend format to frontend format
+    return data.map((plan: any) => ({
+      ...plan,
+      // Convert kbps to Mbps and map field names
+      downloadSpeed: plan.download_speed_kbps ? plan.download_speed_kbps / 1000 : undefined,
+      uploadSpeed: plan.upload_speed_kbps ? plan.upload_speed_kbps / 1000 : undefined,
+      // Map limit_time_seconds to duration
+      duration: plan.limit_time_seconds,
+      // Map limit_data_bytes to dataLimit
+      dataLimit: plan.limit_data_bytes,
+      // Set defaults for required fields
+      description: plan.description || '',
+      currency: plan.currency || 'KES',
+      isActive: true,
+      features: plan.features || [],
+    }))
   }
 
   async subscribeToPlan(planId: string): Promise<Subscription> {
@@ -296,13 +312,65 @@ class ApiClient {
   }
 
   async createPlan(plan: Partial<Plan>): Promise<Plan> {
-    const { data } = await this.client.post('/admin/plans', plan)
-    return data
+    // Transform frontend format (Mbps, Plan interface) to backend format (kbps, DB schema)
+    const backendPlan = {
+      name: plan.name,
+      description: plan.description,
+      type: plan.type,
+      price: plan.price,
+      // Convert Mbps to kbps for storage
+      download_speed_kbps: plan.downloadSpeed ? Math.round(plan.downloadSpeed * 1000) : null,
+      upload_speed_kbps: plan.uploadSpeed ? Math.round(plan.uploadSpeed * 1000) : null,
+      // Map field names to backend schema
+      limit_time_seconds: plan.duration || null,
+      limit_data_bytes: plan.dataLimit || null,
+      validity_seconds: null, // Not currently used in UI
+    }
+    
+    const { data } = await this.client.post('/admin/plans', backendPlan)
+    
+    // Transform response back to frontend format
+    return {
+      ...data,
+      downloadSpeed: data.download_speed_kbps ? data.download_speed_kbps / 1000 : undefined,
+      uploadSpeed: data.upload_speed_kbps ? data.upload_speed_kbps / 1000 : undefined,
+      duration: data.limit_time_seconds,
+      dataLimit: data.limit_data_bytes,
+      description: data.description || '',
+      currency: data.currency || 'KES',
+      isActive: true,
+      features: [],
+    }
   }
 
   async updatePlan(planId: string, plan: Partial<Plan>): Promise<Plan> {
-    const { data } = await this.client.put(`/admin/plans/${planId}`, plan)
-    return data
+    // Transform frontend format to backend format (same as createPlan)
+    const backendPlan = {
+      name: plan.name,
+      description: plan.description,
+      type: plan.type,
+      price: plan.price,
+      download_speed_kbps: plan.downloadSpeed ? Math.round(plan.downloadSpeed * 1000) : null,
+      upload_speed_kbps: plan.uploadSpeed ? Math.round(plan.uploadSpeed * 1000) : null,
+      limit_time_seconds: plan.duration || null,
+      limit_data_bytes: plan.dataLimit || null,
+      validity_seconds: null,
+    }
+    
+    const { data } = await this.client.put(`/admin/plans/${planId}`, backendPlan)
+    
+    // Transform response back
+    return {
+      ...data,
+      downloadSpeed: data.download_speed_kbps ? data.download_speed_kbps / 1000 : undefined,
+      uploadSpeed: data.upload_speed_kbps ? data.upload_speed_kbps / 1000 : undefined,
+      duration: data.limit_time_seconds,
+      dataLimit: data.limit_data_bytes,
+      description: data.description || '',
+      currency: data.currency || 'KES',
+      isActive: true,
+      features: [],
+    }
   }
 
   async getLiveSessions(): Promise<Session[]> {

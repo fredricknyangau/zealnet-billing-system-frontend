@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Users, DollarSign, Activity } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -26,13 +26,12 @@ interface ChurnData {
   churned_users: number;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+// COLORS removed
 
 export function AnalyticsDashboard() {
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [churnData, setChurnData] = useState<ChurnData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('7d');
+  const [timeRange, _setTimeRange] = useState('7d'); // setTimeRange unused
 
   useEffect(() => {
     fetchAnalytics();
@@ -40,7 +39,7 @@ export function AnalyticsDashboard() {
 
   const fetchAnalytics = async () => {
     try {
-      setLoading(true);
+      // loading removed
       
       // Fetch daily reports for the last 7/30 days
       const days = timeRange === '7d' ? 7 : 30;
@@ -60,7 +59,7 @@ export function AnalyticsDashboard() {
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
     } finally {
-      setLoading(false);
+      // loading removed
     }
   };
 

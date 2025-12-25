@@ -55,7 +55,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
 // Mock data generator
 const generateMockData = (): ChurnDataPoint[] => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-  return months.map((month, index) => ({
+  return months.map((month, _index) => ({
     month,
     churnRate: 5 + Math.random() * 10, // 5-15%
     retention: 85 + Math.random() * 10, // 85-95%

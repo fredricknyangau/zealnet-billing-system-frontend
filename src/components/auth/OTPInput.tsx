@@ -22,6 +22,13 @@ export const OTPInput: React.FC<OTPInputProps> = ({
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
 
+  // Store the latest onComplete callback in a ref to avoid infinite re-renders
+  const onCompleteRef = useRef(onComplete)
+  
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
+
   useEffect(() => {
     if (autoFocus && inputRefs.current[0]) {
       inputRefs.current[0].focus()
@@ -29,10 +36,11 @@ export const OTPInput: React.FC<OTPInputProps> = ({
   }, [autoFocus])
 
   useEffect(() => {
-    if (value.length === length && onComplete) {
-      onComplete(value)
+    if (value.length === length && onCompleteRef.current) {
+      onCompleteRef.current(value)
     }
-  }, [value, length, onComplete])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, length]) // Only depend on value and length, not the callback
 
   const focusInput = (index: number) => {
     if (index >= 0 && index < length && inputRefs.current[index]) {

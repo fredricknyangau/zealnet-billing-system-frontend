@@ -1,3 +1,4 @@
+import { CountdownTimer } from '@/components/dashboard/CountdownTimer'
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -25,7 +26,8 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { DeviceTrustBadge } from '@/components/security/DeviceTrustBadge'
 import { LoginAlertsContainer } from '@/components/security/LoginAlert'
-import { DisputeModal } from '@/components/DisputeModal'
+// DisputeModal import removed
+
 import { UsageChart } from '@/components/dashboard/UsageChart'
 import { ProfileSettingsModal } from '@/components/dashboard/ProfileSettingsModal'
 import { SpeedTestWidget } from '@/components/dashboard/SpeedTestWidget'
@@ -39,34 +41,42 @@ export const CustomerDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { user, logout } = useAuthStore()
+  // Use selectors to prevent infinite re-renders
+  const user = useAuthStore(state => state.user)
+  const logout = useAuthStore(state => state.logout)
   const [showBuyMoreModal, setShowBuyMoreModal] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [showDisputeModal, setShowDisputeModal] = useState(false)
+
   const [showSettingsModal, setShowSettingsModal] = useState(false)
-  const [selectedPayment, setSelectedPayment] = useState<any>(null)
+  // removed unused dispute state
   const { showNotification, requestPermission } = usePushNotifications()
 
   // Request notification permission on mount
   useEffect(() => {
-    requestPermission()
+    const checkAndRequest = async () => {
+       // We can't easily check isSupported synchronous state here as it might update, 
+       // but requestPermission inside the hook already checks it.
+       // However, to be safe and avoid the error log in the console we saw:
+       if ('Notification' in window && 'serviceWorker' in navigator) {
+          requestPermission()
+       }
+    }
+    checkAndRequest()
   }, [requestPermission])
-
   // Listen for real-time subscription updates
-  // TODO: Implement general WebSocket endpoint on backend or use LiveUsageWidget's WebSocket
-  // useWebSocket('subscription_update', (data: any) => {
-  //   queryClient.invalidateQueries({ queryKey: ['subscription'] })
-  //   if (data.lowBalance) {
-  //     showNotification('Low Balance Warning', {
-  //       body: 'Your WiFi balance is running low. Consider topping up.',
-  //     })
-  //   }
-  //   if (data.expiringSoon) {
-  //     showNotification('Subscription Expiring Soon', {
-  //       body: `Your subscription expires in ${data.timeRemaining}. Renew now to stay connected.`,
-  //     })
-  //   }
-  // })
+  useWebSocket('subscription_update', (data: { lowBalance?: boolean; expiringSoon?: boolean; timeRemaining?: string }) => {
+    queryClient.invalidateQueries({ queryKey: ['subscription'] })
+    if (data.lowBalance) {
+      showNotification('Low Balance Warning', {
+        body: 'Your WiFi balance is running low. Consider topping up.',
+      })
+    }
+    if (data.expiringSoon) {
+      showNotification('Subscription Expiring Soon', {
+        body: `Your subscription expires in ${data.timeRemaining}. Renew now to stay connected.`,
+      })
+    }
+  })
 
   // Queries and Mutations (unchanged)
   const { data: subscription, isLoading: subLoading } = useQuery({
@@ -84,10 +94,7 @@ export const CustomerDashboard: React.FC = () => {
     queryFn: () => api.getDevices(),
   })
 
-  const { data: payments, isLoading: paymentsLoading } = useQuery({
-    queryKey: ['payments'],
-    queryFn: () => api.getPayments(),
-  })
+  /* payments query removed (unused) */
 
   const { data: sessions, isLoading: sessionsLoading } = useQuery({
     queryKey: ['sessions'],
@@ -137,10 +144,8 @@ export const CustomerDashboard: React.FC = () => {
     },
   })
 
-  const handleDispute = (payment: any) => {
-    setSelectedPayment(payment)
-    setShowDisputeModal(true)
-  }
+  // handleDispute removed because it was unused
+
 
   const handleLogout = () => {
     logout()
@@ -233,9 +238,7 @@ export const CustomerDashboard: React.FC = () => {
                     <p className="text-sm text-muted-foreground mb-1">
                       {t('dashboard.timeRemaining')}
                     </p>
-                    <p className="text-2xl font-bold text-foreground">
-                      {formatDuration(subscription.timeRemaining)}
-                    </p>
+                    <CountdownTimer initialSeconds={subscription.timeRemaining || 0} />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">
@@ -527,16 +530,7 @@ export const CustomerDashboard: React.FC = () => {
 
       {/* Dispute Modal */}
 
-      {showDisputeModal && selectedPayment && (
-        <DisputeModal
-          isOpen={showDisputeModal}
-          onClose={() => {
-            setShowDisputeModal(false)
-            setSelectedPayment(null)
-          }}
-          transactionId={selectedPayment.transactionId}
-        />
-      )}
+      {/* Dispute Model removed (unused) */}
 
       <ProfileSettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
     </div>

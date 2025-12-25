@@ -54,7 +54,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
   children,
   allowedRoles,
 }) => {
-  const { isAuthenticated, user } = useAuthStore()
+  // Use selectors to prevent infinite re-renders
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+  const user = useAuthStore(state => state.user)
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
@@ -92,7 +94,7 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public routes */}

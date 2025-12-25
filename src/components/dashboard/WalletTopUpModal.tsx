@@ -13,7 +13,7 @@ interface WalletTopUpModalProps {
 }
 
 export const WalletTopUpModal: React.FC<WalletTopUpModalProps> = ({ isOpen, onClose }) => {
-  const { user } = useAuthStore()
+  const user = useAuthStore(state => state.user)  // Use selector to prevent re-renders
   const [amount, setAmount] = useState('500')
   const [phone, setPhone] = useState(user?.phone || '')
 

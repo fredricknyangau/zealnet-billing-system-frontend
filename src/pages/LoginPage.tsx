@@ -17,7 +17,7 @@ type AuthMethod = 'password' | 'otp'
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
-  const { setAuth } = useAuthStore()
+  const setAuth = useAuthStore(state => state.setAuth)  // Use selector instead of destructuring
   
   // Auth method selection
   const [authMethod, setAuthMethod] = useState<AuthMethod>('password')

@@ -13,7 +13,7 @@ interface ProfileSettingsModalProps {
 
 export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onClose }) => {
 
-  const { user } = useAuthStore()
+  const user = useAuthStore(state => state.user)  // Use selector to prevent re-renders
 
   // Simplified: In a real app we would have form state here for updating profile
   // For now we just show user info and a placeholder for password change

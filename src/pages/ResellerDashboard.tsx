@@ -10,7 +10,6 @@ import {
   X,
 } from 'lucide-react'
 import { api } from '@/lib/api'
-import { extractErrorMessage } from '@/lib/utils'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -24,7 +23,7 @@ import toast from 'react-hot-toast'
 // Sub-components for Reseller Pages
 const ResellerOverview: React.FC = () => {
   const { t } = useTranslation()
-  const { user } = useAuthStore()
+  const user = useAuthStore(state => state.user)  // Use selector
 
   // Fetch tenants for overview stats
   const { data: tenants = [], isLoading } = useQuery({
@@ -118,7 +117,7 @@ export const ResellerDashboard: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const { logout } = useAuthStore()
+  const logout = useAuthStore(state => state.logout)  // Use selector
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const menuItems = [

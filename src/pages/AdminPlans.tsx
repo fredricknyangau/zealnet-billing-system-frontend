@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Edit, Trash2, Check, X } from 'lucide-react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
@@ -26,8 +26,8 @@ export const AdminPlans: React.FC = () => {
     currency: 'KES',
     duration: '',
     dataLimit: '',
-    speedLimit: '',
-    isActive: true,
+    downloadSpeed: '',
+    uploadSpeed: '',
   })
 
   const { data: plans, isLoading } = useQuery({
@@ -71,8 +71,8 @@ export const AdminPlans: React.FC = () => {
       currency: 'KES',
       duration: '',
       dataLimit: '',
-      speedLimit: '',
-      isActive: true,
+      downloadSpeed: '',
+      uploadSpeed: '',
     })
   }
 
@@ -86,8 +86,8 @@ export const AdminPlans: React.FC = () => {
       currency: plan.currency,
       duration: plan.duration?.toString() || '',
       dataLimit: plan.dataLimit?.toString() || '',
-      speedLimit: plan.speedLimit?.toString() || '',
-      isActive: plan.isActive,
+      downloadSpeed: plan.downloadSpeed?.toString() || '',
+      uploadSpeed: plan.uploadSpeed?.toString() || '',
     })
     setShowCreateModal(true)
   }
@@ -102,8 +102,8 @@ export const AdminPlans: React.FC = () => {
       currency: formData.currency,
       duration: formData.duration ? parseInt(formData.duration) : undefined,
       dataLimit: formData.dataLimit ? parseInt(formData.dataLimit) : undefined,
-      speedLimit: formData.speedLimit ? parseInt(formData.speedLimit) : undefined,
-      isActive: formData.isActive,
+      downloadSpeed: formData.downloadSpeed ? parseFloat(formData.downloadSpeed) : undefined,
+      uploadSpeed: formData.uploadSpeed ? parseFloat(formData.uploadSpeed) : undefined,
       features: [],
     }
 
@@ -129,13 +129,6 @@ export const AdminPlans: React.FC = () => {
     if (confirm('Are you sure you want to delete this plan?')) {
       deletePlanMutation.mutate(planId)
     }
-  }
-
-  const handleToggleActive = (plan: Plan) => {
-    updatePlan.mutate({
-      planId: plan.id,
-      plan: { isActive: !plan.isActive },
-    })
   }
 
   return (
@@ -164,18 +157,17 @@ export const AdminPlans: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans?.map((plan) => (
-            <Card key={plan.id}>
+          <Card key={plan.id}>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>{plan.name}</CardTitle>
-                  <Badge variant={plan.isActive ? 'success' : 'default'} size="sm">
-                    {plan.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
+                <CardTitle>{plan.name}</CardTitle>
                 <CardDescription>{plan.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Type</span>
+                    <Badge variant="info" size="sm">{plan.type}</Badge>
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Price</span>
                     <span className="text-lg font-bold text-primary">
@@ -196,10 +188,16 @@ export const AdminPlans: React.FC = () => {
                       <span className="text-sm font-medium">{formatBytes(plan.dataLimit)}</span>
                     </div>
                   )}
-                  {plan.speedLimit && (
+                  {plan.downloadSpeed && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Speed</span>
-                      <span className="text-sm font-medium">{plan.speedLimit} Mbps</span>
+                      <span className="text-sm text-muted-foreground">Download Speed</span>
+                      <span className="text-sm font-medium">{plan.downloadSpeed} Mbps</span>
+                    </div>
+                  )}
+                  {plan.uploadSpeed && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Upload Speed</span>
+                      <span className="text-sm font-medium">{plan.uploadSpeed} Mbps</span>
                     </div>
                   )}
                   <div className="flex gap-2 pt-2 border-t border-border">
@@ -211,14 +209,6 @@ export const AdminPlans: React.FC = () => {
                       onClick={() => handleEdit(plan)}
                     >
                       Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon={plan.isActive ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      onClick={() => handleToggleActive(plan)}
-                    >
-                      {plan.isActive ? 'Deactivate' : 'Activate'}
                     </Button>
                     <Button
                       variant="outline"
@@ -302,23 +292,21 @@ export const AdminPlans: React.FC = () => {
               helperText="e.g., 5368709120 for 5GB"
             />
           )}
-          <Input
-            label="Speed Limit (Mbps)"
-            type="number"
-            value={formData.speedLimit}
-            onChange={(e) => setFormData({ ...formData, speedLimit: e.target.value })}
-          />
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isActive"
-              checked={formData.isActive}
-              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-              className="w-4 h-4 text-primary rounded"
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Download Speed (Mbps)"
+              type="number"
+              value={formData.downloadSpeed}
+              onChange={(e) => setFormData({ ...formData, downloadSpeed: e.target.value })}
+              helperText="e.g., 10 for 10 Mbps"
             />
-            <label htmlFor="isActive" className="text-sm text-foreground">
-              Plan is active
-            </label>
+            <Input
+              label="Upload Speed (Mbps)"
+              type="number"
+              value={formData.uploadSpeed}
+              onChange={(e) => setFormData({ ...formData, uploadSpeed: e.target.value })}
+              helperText="e.g., 5 for 5 Mbps"
+            />
           </div>
           <div className="flex gap-2 pt-4">
             <Button type="submit" fullWidth isLoading={createPlan.isPending || updatePlan.isPending}>

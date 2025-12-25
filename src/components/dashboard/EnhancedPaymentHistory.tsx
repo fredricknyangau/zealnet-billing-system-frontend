@@ -15,12 +15,12 @@ import { api } from '@/lib/api';
 interface Payment {
   id: string;
   amount: number;
-  provider: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  type: string;  // DEPOSIT, PURCHASE, etc.
+  status: string;  // COMPLETED, PENDING, etc.
   reference: string;
+  description: string;
   created_at: string;
   completed_at: string | null;
-  plan_name: string | null;
 }
 
 export function EnhancedPaymentHistory() {
@@ -35,16 +35,17 @@ export function EnhancedPaymentHistory() {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter);
-      }
-      params.append('limit', '50');
-
-      const response = await api.get(`/payments/history?${params}`);
-      // Handle both array response and object with data property
-      const paymentsData = Array.isArray(response.data) ? response.data : (response.data?.data || []);
-      setPayments(paymentsData);
+      // Use the correct endpoint that returns transactions
+      const response = await api.get('/users/me/payments');
+      // Backend returns array of transactions directly
+      const paymentsData = Array.isArray(response.data) ? response.data : [];
+      
+      // Filter by status if needed
+      const filtered = statusFilter === 'all' 
+        ? paymentsData 
+        : paymentsData.filter((p: Payment) => p.status.toLowerCase() === statusFilter.toLowerCase());
+      
+      setPayments(filtered);
     } catch (error) {
       console.error('Failed to fetch payment history:', error);
       setPayments([]); // Set empty array on error
@@ -55,14 +56,14 @@ export function EnhancedPaymentHistory() {
 
   const handleExport = () => {
     const csvContent = [
-      ['Date', 'Amount', 'Provider', 'Status', 'Reference', 'Plan'].join(','),
+      ['Date', 'Amount', 'Type', 'Status', 'Reference', 'Description'].join(','),
       ...payments.map(p => [
         new Date(p.created_at).toLocaleDateString(),
         p.amount,
-        p.provider,
+        p.type,
         p.status,
         p.reference,
-        p.plan_name || 'N/A',
+        p.description || 'N/A',
       ].join(','))
     ].join('\n');
 
@@ -75,6 +76,7 @@ export function EnhancedPaymentHistory() {
   };
 
   const getStatusBadge = (status: string) => {
+    const statusLower = status.toLowerCase();
     const config = {
       completed: { variant: 'success' as const, icon: CheckCircle, color: 'text-green-500' },
       pending: { variant: 'warning' as const, icon: Clock, color: 'text-yellow-500' },
@@ -82,7 +84,7 @@ export function EnhancedPaymentHistory() {
       cancelled: { variant: 'default' as const, icon: XCircle, color: 'text-gray-500' },
     };
 
-    const { variant, icon: Icon, color } = config[status as keyof typeof config] || config.pending;
+    const { variant, icon: Icon, color } = config[statusLower as keyof typeof config] || config.pending;
 
     return (
       <Badge variant={variant} className="flex items-center gap-1 w-fit">
@@ -93,7 +95,7 @@ export function EnhancedPaymentHistory() {
   };
 
   const totalAmount = payments
-    .filter(p => p.status === 'completed')
+    .filter(p => p.status.toLowerCase() === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
   return (
@@ -142,9 +144,9 @@ export function EnhancedPaymentHistory() {
               <TableRow>
                 <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead>Provider</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Reference</TableHead>
-                <TableHead>Plan</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -157,9 +159,9 @@ export function EnhancedPaymentHistory() {
                   <TableCell className="font-semibold">
                     KES {payment.amount.toLocaleString()}
                   </TableCell>
-                  <TableCell className="capitalize">{payment.provider}</TableCell>
+                  <TableCell className="capitalize">{payment.type}</TableCell>
                   <TableCell className="font-mono text-xs">{payment.reference}</TableCell>
-                  <TableCell>{payment.plan_name || '-'}</TableCell>
+                  <TableCell className="text-sm">{payment.description || '-'}</TableCell>
                   <TableCell>{getStatusBadge(payment.status)}</TableCell>
                 </TableRow>
               ))}
