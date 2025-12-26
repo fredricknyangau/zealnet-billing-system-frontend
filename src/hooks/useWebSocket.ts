@@ -4,7 +4,8 @@ import type { WebSocketMessage } from '@/lib/websocket'
 
 export function useWebSocket<T = any>(
   messageType: string,
-  onMessage?: (data: T) => void
+  onMessage?: (data: T) => void,
+  url?: string
 ) {
   const [isConnected, setIsConnected] = useState(false)
   const [lastMessage, setLastMessage] = useState<T | null>(null)
@@ -31,7 +32,7 @@ export function useWebSocket<T = any>(
       onError: () => {
         setIsConnected(false)
       },
-    })
+    }, { url })
 
     return () => {
       wsClient.disconnect()

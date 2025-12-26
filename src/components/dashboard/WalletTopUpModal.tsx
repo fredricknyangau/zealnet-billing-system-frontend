@@ -31,6 +31,8 @@ export const WalletTopUpModal: React.FC<WalletTopUpModalProps> = ({ isOpen, onCl
     onSuccess: (_) => {
       toast.success('M-Pesa STK Push sent! Please enter your PIN.')
       onClose()
+      // Refresh user to get updated balance (might be delayed)
+      useAuthStore.getState().refreshUser()
     },
     onError: (_) => {
       toast.error('Failed to initiate payment')

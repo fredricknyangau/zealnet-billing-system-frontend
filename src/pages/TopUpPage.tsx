@@ -12,6 +12,7 @@ import {
   Clock
 } from 'lucide-react'
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/stores/authStore'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { Button } from '@/components/ui/Button'
@@ -68,6 +69,8 @@ export default function TopUpPage() {
     
     // Invalidate and refetch balance
     queryClient.invalidateQueries({ queryKey: ['wallet'] })
+    useAuthStore.getState().refreshUser()
+    
     
     toast.success('Payment successful! Your wallet has been topped up.', {
       icon: '✨',

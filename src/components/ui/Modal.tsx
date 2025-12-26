@@ -48,11 +48,11 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <FocusTrap isActive={isOpen} onEscape={onClose}>
         <div
-          className={`bg-card border border-border rounded-lg shadow-lg w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto`}
+          className={`bg-card border border-border rounded-lg shadow-lg w-full ${sizeClasses[size]} max-h-[85dvh] overflow-y-auto`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border sticky top-0 bg-card z-10">
             <h2 id="modal-title" className="text-xl font-semibold">
               {title}
             </h2>
@@ -66,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="p-6">{children}</div>
+          <div className="p-4 sm:p-6">{children}</div>
         </div>
       </FocusTrap>
     </div>

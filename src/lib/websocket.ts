@@ -23,8 +23,11 @@ class WebSocketClient {
     this.url = url
   }
 
-  connect(callbacks: WebSocketCallbacks = {}) {
+  connect(callbacks: WebSocketCallbacks = {}, config: { url?: string } = {}) {
     this.callbacks = callbacks
+    if (config.url) {
+      this.url = config.url
+    }
     this.shouldReconnect = true
     this.attemptConnect()
   }

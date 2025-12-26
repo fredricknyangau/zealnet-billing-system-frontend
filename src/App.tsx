@@ -91,6 +91,16 @@ function App() {
     }
   }, [effectiveTheme])
 
+  // Sync user session on load
+  // const refreshUser = useAuthStore(state => state.refreshUser)
+  // const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     refreshUser()
+  //   }
+  // }, [isAuthenticated, refreshUser])
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

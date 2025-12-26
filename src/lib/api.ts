@@ -185,6 +185,15 @@ class ApiClient {
     return data
   }
 
+  async buyPlan(planId: string): Promise<any> {
+    if (USE_MOCK_DATA) {
+        await delay(500)
+        return { success: true }
+    }
+    const { data } = await this.client.post(`/plans/buy/${planId}`)
+    return data
+  }
+
   // User endpoints
   async getCurrentUser(): Promise<User> {
     if (USE_MOCK_DATA) {

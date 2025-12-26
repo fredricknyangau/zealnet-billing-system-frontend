@@ -30,6 +30,7 @@ import { LoginAlertsContainer } from '@/components/security/LoginAlert'
 
 import { UsageChart } from '@/components/dashboard/UsageChart'
 import { ProfileSettingsModal } from '@/components/dashboard/ProfileSettingsModal'
+import { WalletTopUpModal } from '@/components/dashboard/WalletTopUpModal'
 import { SpeedTestWidget } from '@/components/dashboard/SpeedTestWidget'
 import { LiveUsageWidget } from '@/components/dashboard/LiveUsageWidget'
 import { VoucherRedemption } from '@/components/dashboard/VoucherRedemption'
@@ -46,6 +47,7 @@ export const CustomerDashboard: React.FC = () => {
   const logout = useAuthStore(state => state.logout)
   const [showBuyMoreModal, setShowBuyMoreModal] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showTopUpModal, setShowTopUpModal] = useState(false)
 
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   // removed unused dispute state
@@ -64,6 +66,8 @@ export const CustomerDashboard: React.FC = () => {
     checkAndRequest()
   }, [requestPermission])
   // Listen for real-time subscription updates
+  const wsUrl = user?.id ? `${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/usage/${user.id}` : undefined
+  
   useWebSocket('subscription_update', (data: { lowBalance?: boolean; expiringSoon?: boolean; timeRemaining?: string }) => {
     queryClient.invalidateQueries({ queryKey: ['subscription'] })
     if (data.lowBalance) {
@@ -76,7 +80,7 @@ export const CustomerDashboard: React.FC = () => {
         body: `Your subscription expires in ${data.timeRemaining}. Renew now to stay connected.`,
       })
     }
-  })
+  }, wsUrl)
 
   // Queries and Mutations (unchanged)
   const { data: subscription, isLoading: subLoading } = useQuery({
@@ -172,7 +176,7 @@ export const CustomerDashboard: React.FC = () => {
   }
 
   const handleTopUp = () => {
-    navigate('/topup')
+    setShowTopUpModal(true)
   }
 
   const handleSettings = () => {
@@ -218,14 +222,29 @@ export const CustomerDashboard: React.FC = () => {
                   {subscription ? subscription.plan.name : t('dashboard.noActivePlan')}
                 </CardDescription>
               </div>
-              {subscription && (
-                <Badge
-                  variant={subscription.status === 'active' ? 'success' : 'warning'}
-                  size="md"
-                >
-                  {subscription.status}
-                </Badge>
-              )}
+              <div className="flex items-center gap-3">
+                 <div className="flex flex-col items-end mr-2">
+                    <span className="text-xs text-muted-foreground">Wallet Balance</span>
+                    <span className="font-bold text-primary">{formatCurrency(user?.balance || 0, 'KES')}</span>
+                 </div>
+                 <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-primary hover:text-primary/80 hover:bg-primary/10"
+                    onClick={handleTopUp}
+                  >
+                    <WalletIcon className="h-4 w-4 mr-2" />
+                    Top Up
+                  </Button>
+                  {subscription && (
+                    <Badge
+                      variant={subscription.status === 'active' ? 'success' : 'warning'}
+                      size="md"
+                    >
+                      {subscription.status}
+                    </Badge>
+                  )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -304,14 +323,6 @@ export const CustomerDashboard: React.FC = () => {
                       {t('dashboard.resume')}
                     </Button>
                   )}
-
-                   <Button
-                    variant="outline"
-                    icon={<WalletIcon className="h-4 w-4" />}
-                    onClick={handleTopUp}
-                  >
-                    Top Up
-                  </Button>
                 </div>
               </div>
             ) : (
@@ -470,7 +481,7 @@ export const CustomerDashboard: React.FC = () => {
                 key={plan.id}
                 onClick={() => {
                   toast.success(`Selected ${plan.name}`)
-                  navigate('/portal')
+                  navigate('/portal', { state: { autoSelectPlanId: plan.id } })
                   setShowBuyMoreModal(false)
                 }}
                 className="w-full text-left p-4 border-2 border-border rounded-lg hover:border-primary transition-colors"
@@ -508,7 +519,7 @@ export const CustomerDashboard: React.FC = () => {
                   key={plan.id}
                   onClick={() => {
                     toast.success(`Upgrading to ${plan.name}`)
-                    navigate('/portal')
+                    navigate('/portal', { state: { autoSelectPlanId: plan.id } })
                     setShowUpgradeModal(false)
                   }}
                   className="w-full text-left p-4 border-2 border-border rounded-lg hover:border-primary transition-colors"
@@ -532,6 +543,7 @@ export const CustomerDashboard: React.FC = () => {
 
       {/* Dispute Model removed (unused) */}
 
+      <WalletTopUpModal isOpen={showTopUpModal} onClose={() => setShowTopUpModal(false)} />
       <ProfileSettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
     </div>
   )

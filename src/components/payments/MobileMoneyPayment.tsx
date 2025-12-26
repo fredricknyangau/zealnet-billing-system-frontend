@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Smartphone, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Smartphone, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { PhoneInput } from '../ui/PhoneInput';
 import { validateE164 } from '@/lib/countries';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 
 interface MobileMoneyPaymentProps {
   amount: number;
@@ -154,14 +156,14 @@ export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: Mobi
   const getStatusIcon = () => {
     switch (status) {
       case 'completed':
-        return <CheckCircle2 className="w-16 h-16 text-green-500" />;
+        return <CheckCircle2 className="w-16 h-16 text-success" />;
       case 'failed':
       case 'cancelled':
       case 'expired':
-        return <XCircle className="w-16 h-16 text-red-500" />;
+        return <XCircle className="w-16 h-16 text-destructive" />;
       case 'pending':
       case 'processing':
-        return <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />;
+        return <Loader2 className="w-16 h-16 text-primary animate-spin" />;
       default:
         return null;
     }
@@ -187,43 +189,38 @@ export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: Mobi
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Mobile Money Payment
-          </h2>
-          <button
-            onClick={onCancel}
-            disabled={isProcessing}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
+    <Modal isOpen={true} onClose={onCancel} title="Mobile Money Payment" size="sm">
+      <div className="space-y-4 sm:space-y-6">
         {/* Status Display */}
         {isProcessing && status ? (
           <div className="text-center py-8">
             <div className="flex justify-center mb-4">
               {getStatusIcon()}
             </div>
-            <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <p className="text-lg font-semibold text-foreground mb-2">
               {getStatusMessage()}
             </p>
             {status === 'pending' && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 Enter your M-Pesa PIN to complete the payment
               </p>
             )}
+            
+            {/* Show Close button if failed/completed */}
+            {(status === 'failed' || status === 'cancelled' || status === 'expired' || status === 'completed') && (
+               <div className="mt-6">
+                 <Button onClick={onCancel} variant="outline" className="w-full">
+                    Close
+                 </Button>
+               </div>
+            )}
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Amount Display */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Amount to Pay</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="bg-primary/10 rounded-lg p-3 sm:p-4 text-center">
+              <p className="text-sm text-muted-foreground">Amount to Pay</p>
+              <p className="text-2xl sm:text-3xl font-bold text-primary">
                 KES {amount.toLocaleString()}
               </p>
             </div>
@@ -241,39 +238,33 @@ export default function MobileMoneyPayment({ amount, onSuccess, onCancel }: Mobi
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
               disabled={isProcessing || !phoneNumber}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
+              className="w-full"
+              isLoading={isProcessing}
+              icon={!isProcessing && <Smartphone className="w-5 h-5" />}
             >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Processing...</span>
-                </>
-              ) : (
-                <>
-                  <Smartphone className="w-5 h-5" />
-                  <span>Pay with M-Pesa</span>
-                </>
-              )}
-            </button>
+              {isProcessing ? 'Processing...' : 'Pay with M-Pesa'}
+            </Button>
           </form>
         )}
 
         {/* Info */}
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            You will receive an M-Pesa prompt on your phone. Enter your PIN to complete the payment.
-          </p>
-        </div>
+        {!isProcessing && (
+          <div className="pt-4 border-t border-border">
+            <p className="text-xs text-muted-foreground text-center">
+              You will receive an M-Pesa prompt on your phone. Enter your PIN to complete the payment.
+            </p>
+          </div>
+        )}
       </div>
-    </div>
+    </Modal>
   );
 }

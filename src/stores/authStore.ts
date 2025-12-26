@@ -8,6 +8,7 @@ interface AuthState {
   setAuth: (user: User) => void
   logout: () => void
   updateUser: (user: Partial<User>) => void
+  refreshUser: () => Promise<void>
 }
 
 /**
@@ -42,6 +43,16 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...userUpdates } : null,
         })),
+      refreshUser: async () => {
+        try {
+          // Import api here to avoid circular dependency issues if any arise, active import is safest
+          const { api } = await import('@/lib/api') 
+          const user = await api.getCurrentUser()
+          set({ user, isAuthenticated: true })
+        } catch (error) {
+          console.error('Failed to refresh user', error)
+        }
+      },
     }),
     {
       name: 'auth-storage',

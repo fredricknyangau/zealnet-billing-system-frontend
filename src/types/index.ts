@@ -8,6 +8,7 @@ export interface User {
   role: UserRole
   tenantId?: string
   locale: string
+  balance: number
   createdAt: string
 }
 

@@ -115,9 +115,9 @@ export function PhoneInput({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-content-primary">
+        <label className="block text-sm font-medium text-foreground">
           {label}
-          {required && <span className="text-semantic-error ml-1">*</span>}
+          {required && <span className="text-destructive ml-1">*</span>}
         </label>
       )}
 
@@ -128,12 +128,12 @@ export function PhoneInput({
             flex items-center w-full rounded-lg border transition-all
             ${
               error
-                ? "border-semantic-error focus-within:ring-2 focus-within:ring-semantic-error/20"
+                ? "border-destructive focus-within:ring-2 focus-within:ring-destructive/20"
                 : isValid
-                ? "border-border-primary focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/20"
-                : "border-semantic-warning focus-within:ring-2 focus-within:ring-semantic-warning/20"
+                ? "border-input focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20"
+                : "border-warning focus-within:ring-2 focus-within:ring-warning/20"
             }
-            ${disabled ? "bg-bg-secondary opacity-60 cursor-not-allowed" : "bg-bg-primary"}
+            ${disabled ? "bg-muted opacity-60 cursor-not-allowed" : "bg-background"}
           `}
         >
           {/* Country selector button */}
@@ -143,8 +143,8 @@ export function PhoneInput({
             disabled={disabled}
             className={`
               flex items-center gap-2 px-3 py-2.5 rounded-l-lg
-              border-r border-border-primary
-              hover:bg-bg-secondary transition-colors
+              border-r border-input
+              hover:bg-muted transition-colors
               ${disabled ? "cursor-not-allowed" : "cursor-pointer"}
             `}
             aria-label="Select country"
@@ -153,11 +153,11 @@ export function PhoneInput({
             <span className="text-xl" role="img" aria-label={selectedCountry.name}>
               {selectedCountry.flag}
             </span>
-            <span className="text-sm font-medium text-content-primary">
+            <span className="text-sm font-medium text-foreground">
               +{selectedCountry.dialCode}
             </span>
             <svg
-              className={`w-4 h-4 text-content-tertiary transition-transform ${
+              className={`w-4 h-4 text-muted-foreground transition-transform ${
                 isDropdownOpen ? "rotate-180" : ""
               }`}
               fill="none"
@@ -183,7 +183,7 @@ export function PhoneInput({
             required={required}
             className={`
               flex-1 px-3 py-2.5 bg-transparent outline-none
-              text-content-primary placeholder-content-tertiary
+              text-foreground placeholder:text-muted-foreground
               ${disabled ? "cursor-not-allowed" : ""}
             `}
             aria-invalid={!!error}
@@ -195,13 +195,13 @@ export function PhoneInput({
         {isDropdownOpen && (
           <div
             ref={dropdownRef}
-            className="absolute z-50 w-full mt-1 bg-bg-primary border border-border-primary rounded-lg shadow-lg max-h-64 overflow-hidden"
+            className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-64 overflow-hidden"
           >
             {/* Search input */}
-            <div className="p-2 border-b border-border-primary">
+            <div className="p-2 border-b border-border">
               <div className="relative">
                 <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-content-tertiary"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -219,7 +219,7 @@ export function PhoneInput({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search countries..."
-                  className="w-full pl-9 pr-3 py-2 bg-bg-secondary rounded-md text-sm outline-none focus:ring-2 focus:ring-brand-primary/20 text-content-primary placeholder-content-tertiary"
+                  className="w-full pl-9 pr-3 py-2 bg-muted rounded-md text-sm outline-none focus:ring-2 focus:ring-ring/20 text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>
@@ -235,11 +235,11 @@ export function PhoneInput({
                       onClick={() => handleCountrySelect(country)}
                       className={`
                         w-full flex items-center gap-3 px-4 py-2.5 text-left
-                        hover:bg-bg-secondary transition-colors
+                        hover:bg-muted transition-colors
                         ${
                           country.code === selectedCountry.code
-                            ? "bg-brand-primary/10 text-brand-primary"
-                            : "text-content-primary"
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground"
                         }
                       `}
                     >
@@ -255,7 +255,7 @@ export function PhoneInput({
                     </button>
                   ))}
                   {otherFiltered.length > 0 && (
-                    <div className="border-t border-border-primary my-1" />
+                    <div className="border-t border-border my-1" />
                   )}
                 </div>
               )}
@@ -267,11 +267,11 @@ export function PhoneInput({
                   onClick={() => handleCountrySelect(country)}
                   className={`
                     w-full flex items-center gap-3 px-4 py-2.5 text-left
-                    hover:bg-bg-secondary transition-colors
+                    hover:bg-muted transition-colors
                     ${
                       country.code === selectedCountry.code
-                        ? "bg-brand-primary/10 text-brand-primary"
-                        : "text-content-primary"
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground"
                     }
                   `}
                 >
@@ -281,14 +281,14 @@ export function PhoneInput({
                   <span className="flex-1 text-sm font-medium">
                     {country.name}
                   </span>
-                  <span className="text-sm text-content-tertiary">
+                  <span className="text-sm text-muted-foreground">
                     +{country.dialCode}
                   </span>
                 </button>
               ))}
 
               {filteredCountries.length === 0 && (
-                <div className="px-4 py-8 text-center text-content-tertiary text-sm">
+                <div className="px-4 py-8 text-center text-muted-foreground text-sm">
                   No countries found
                 </div>
               )}
@@ -299,7 +299,7 @@ export function PhoneInput({
 
       {/* Error message */}
       {error && (
-        <p id="phone-error" className="text-sm text-semantic-error flex items-center gap-1">
+        <p id="phone-error" className="text-sm text-destructive flex items-center gap-1">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
@@ -313,7 +313,7 @@ export function PhoneInput({
 
       {/* Validation hint */}
       {!error && value && !isValid && (
-        <p className="text-sm text-semantic-warning flex items-center gap-1">
+        <p className="text-sm text-warning flex items-center gap-1">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"

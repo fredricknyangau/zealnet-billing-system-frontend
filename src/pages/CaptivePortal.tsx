@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { 
@@ -16,12 +16,16 @@ import {
   GitCompare,
   Sparkles,
   MessageCircle,
-  X
+  X,
+  Wallet as WalletIcon
 } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/stores/authStore'
 import { Plan } from '@/types'
 
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { formatCurrency, formatBytes, formatDuration } from '@/lib/utils'
@@ -271,6 +275,7 @@ const PlanComparison: React.FC<{ plans: Plan[]; onClose: () => void }> = ({ plan
 
 export const CaptivePortal: React.FC = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [showScanner, setShowScanner] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
@@ -286,9 +291,75 @@ export const CaptivePortal: React.FC = () => {
     queryFn: () => api.getPlans(),
   })
 
+  // State for wallet payment confirmation
+  const [showWalletPayment, setShowWalletPayment] = useState(false)
+
+  // Fetch user data to check balance
+  const user = useAuthStore(state => state.user)
+  // Ensure we have latest balance
+  useEffect(() => {
+    if (useAuthStore.getState().isAuthenticated) {
+        useAuthStore.getState().refreshUser()
+    }
+  }, [])
+
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId)
-    setShowPayment(true)
+    const plan = plans?.find(p => p.id === planId)
+    
+    // Check wallet balance
+    if (user && plan && (user.balance || 0) >= plan.price) {
+        setShowWalletPayment(true)
+    } else {
+        setShowPayment(true)
+    }
+  }
+
+  // Handle auto-selection from dashboard
+  const location = useLocation()
+  useEffect(() => {
+    if (location.state?.autoSelectPlanId && plans) {
+       const planId = location.state.autoSelectPlanId
+       // Verify plan exists
+       if (plans.find(p => p.id === planId)) {
+         handlePlanSelect(planId)
+       }
+    }
+  }, [location.state, plans])
+
+  const handleWalletPaymentConfirm = async () => {
+    if (!selectedPlan) return
+    
+    const toastId = toast.loading('Processing wallet payment...')
+    try {
+        await api.buyPlan(selectedPlan)
+        toast.dismiss(toastId)
+        toast.success('Plan activated successfully!')
+        
+        // Refresh User & Navigate
+        useAuthStore.getState().refreshUser()
+        setShowWalletPayment(false)
+        
+        if (isMikroTik && hotspotParams.linkLogin) {
+             // ... MikroTik logic
+             const username = getUserIdentifier(hotspotParams)
+             const password = generateSessionPassword(hotspotParams.mac)
+             setTimeout(() => {
+                redirectToMikroTikLogin(hotspotParams.linkLogin!, username, password, hotspotParams.linkOrig)
+             }, 1500)
+        } else {
+             setTimeout(() => {
+                navigate('/dashboard', { replace: true })
+             }, 1000)
+        }
+
+    } catch (error) {
+        toast.dismiss(toastId)
+        toast.error('Wallet payment failed')
+        setShowWalletPayment(false)
+        // Fallback to regular payment?
+        // setShowPayment(true) 
+    }
   }
 
   const handlePaymentSuccess = (paymentId: string) => {
@@ -314,11 +385,22 @@ export const CaptivePortal: React.FC = () => {
         )
       }, 1500)
     } else {
-      // Regular flow - redirect to login page
-      toast.success('Payment successful! Redirecting to login...')
-      setTimeout(() => {
-        window.location.href = '/login'
-      }, 2000)
+      // Check if user is already logged in
+      const isAuthenticated = useAuthStore.getState().isAuthenticated
+      
+      if (isAuthenticated) {
+        toast.success('Payment successful! Updating dashboard...')
+        useAuthStore.getState().refreshUser()
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true })
+        }, 1000)
+      } else {
+        // Regular flow - redirect to login page
+        toast.success('Payment successful! Redirecting to login...')
+        setTimeout(() => {
+          navigate('/login', { replace: true })
+        }, 2000)
+      }
     }
   }
 
@@ -424,7 +506,7 @@ export const CaptivePortal: React.FC = () => {
                           </div>
 
                           {/* Features Grid */}
-                          <div className="grid grid-cols-2 gap-3 mt-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                             {/* Time Limit */}
                             {plan.duration && (
                               <div className="flex items-center gap-2 text-sm">
@@ -609,6 +691,42 @@ export const CaptivePortal: React.FC = () => {
       )}
       
       <ChatbotWidget />
+
+      {/* Wallet Payment Confirmation Modal */}
+      <Modal
+        isOpen={showWalletPayment}
+        onClose={() => setShowWalletPayment(false)}
+        title="Pay with Wallet"
+      >
+        <div className="space-y-4">
+             <div className="p-4 bg-primary/10 rounded-lg flex items-center gap-4">
+                <div className="p-2 bg-primary rounded-full">
+                    <WalletIcon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <div>
+                    <h4 className="font-semibold text-foreground">Wallet Balance</h4>
+                    <p className="text-xl font-bold text-primary">{formatCurrency(user?.balance || 0, 'KES')}</p>
+                </div>
+             </div>
+
+             <div className="py-4">
+                <p className="text-muted-foreground mb-2">You are about to purchase:</p>
+                <div className="flex justify-between items-center font-medium p-3 border rounded-lg">
+                    <span>{selectedPlanData?.name}</span>
+                    <span>{selectedPlanData && formatCurrency(selectedPlanData.price, selectedPlanData.currency)}</span>
+                </div>
+             </div>
+             
+             <p className="text-sm text-muted-foreground">
+                Your remaining wallet balance will be {selectedPlanData && formatCurrency((user?.balance || 0) - selectedPlanData.price, 'KES')}.
+             </p>
+
+             <div className="flex justify-end gap-3 pt-2">
+                <Button variant="ghost" onClick={() => setShowWalletPayment(false)}>Cancel</Button>
+                <Button onClick={handleWalletPaymentConfirm}>Pay & Activate</Button>
+             </div>
+        </div>
+      </Modal>
 
       {/* Mobile Money Payment Modal */}
       {showPayment && selectedPlanData && (
