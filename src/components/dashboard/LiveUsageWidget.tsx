@@ -4,11 +4,12 @@
  * Displays real-time usage data via WebSocket connection.
  * Shows data consumption, time usage, and session status with live updates.
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/Badge';
 import { Activity, Wifi, Clock, Database } from 'lucide-react';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 interface UsageData {
   data_used_mb: number;
@@ -26,73 +27,34 @@ interface LiveUsageWidgetProps {
 
 export function LiveUsageWidget({ userId }: LiveUsageWidgetProps) {
   const [usage, setUsage] = useState<UsageData | null>(null);
-  const [connected, setConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
 
-  useEffect(() => {
-    connectWebSocket();
-
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
-  }, [userId]);
-
-  const connectWebSocket = () => {
-    // Note: Authentication should be handled via cookies on the backend
-    // since we're using httpOnly cookies for security
-    const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/usage/${userId}`;
-    
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-      setConnected(true);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        if (data.type === 'usage_update') {
-          setUsage(data.data);
-        } else if (data.type === 'pong') {
-          // Heartbeat response
-          console.log('Heartbeat received');
-        }
-      } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setConnected(false);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-      setConnected(false);
-      
-      // Attempt to reconnect after 5 seconds
-      setTimeout(() => {
-        if (wsRef.current?.readyState === WebSocket.CLOSED) {
-          connectWebSocket();
-        }
-      }, 5000);
-    };
-
-    // Send heartbeat every 30 seconds
-    const heartbeatInterval = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'ping' }));
-      }
-    }, 30000);
-
-    return () => clearInterval(heartbeatInterval);
+  // Construct dynamic WebSocket URL (using window.location to ensure correct host/proxy)
+  const getUrl = () => {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    return `${protocol}//${host}/ws/usage/${userId}`;
   };
+
+  const { isConnected, lastMessage, send } = useWebSocket<UsageData>(
+    'usage_update',
+    (data) => setUsage(data),
+    getUrl()
+  );
+
+  // Send heartbeat every 30 seconds to keep session active
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isConnected) {
+      interval = setInterval(() => {
+        send({ type: 'ping' });
+      }, 30000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isConnected, send]);
+
+  const connected = isConnected;
 
   const dataPercentage = usage 
     ? Math.min((usage.data_used_mb / usage.data_limit_mb) * 100, 100)

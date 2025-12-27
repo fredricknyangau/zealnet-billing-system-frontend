@@ -40,13 +40,17 @@ class EnvironmentValidator {
     }
 
     // Validate URL format
-    try {
-      new URL(apiUrl)
-    } catch (error) {
-      throw new Error(
-        `CRITICAL: VITE_API_URL is not a valid URL: ${apiUrl}\n` +
-        'Please provide a valid URL (e.g., https://api.yourdomain.com)'
-      )
+    if (apiUrl.startsWith('/')) {
+        // Relative path is allowed (e.g. /api/v1) for proxy usage
+    } else {
+        try {
+          new URL(apiUrl)
+        } catch (error) {
+          throw new Error(
+            `CRITICAL: VITE_API_URL is not a valid URL: ${apiUrl}\n` +
+            'Please provide a valid URL (e.g., https://api.yourdomain.com) or a relative path (e.g., /api/v1)'
+          )
+        }
     }
 
     // Warn if using example domain in production

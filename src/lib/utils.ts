@@ -39,7 +39,29 @@ export function maskPhoneNumber(phone: string): string {
 
 export function extractErrorMessage(error: any, defaultMessage: string = 'An error occurred'): string {
   if (typeof error === 'string') return error
-  if (error?.response?.data?.detail) return error.response.data.detail
+  // Handle Axios/Network errors
+  if (error?.response?.data?.detail) {
+    const detail = error.response.data.detail
+    
+    // Pydantic/FastAPI validation errors are arrays
+    if (Array.isArray(detail)) {
+      const firstError = detail[0]
+      if (firstError?.msg) {
+        // Try to add field name context
+        const field = firstError.loc?.[firstError.loc.length - 1]
+        if (field && typeof field === 'string' && field !== 'body') {
+          // Capitalize field name
+          const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')
+          return `${fieldName}: ${firstError.msg}`
+        }
+        return firstError.msg
+      }
+    }
+    
+    // Standard string detail
+    return detail
+  }
+  
   if (error?.response?.data?.message) return error.response.data.message
   if (error?.message) return error.message
   return defaultMessage

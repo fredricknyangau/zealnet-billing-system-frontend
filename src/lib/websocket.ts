@@ -34,7 +34,15 @@ class WebSocketClient {
 
   private attemptConnect() {
     try {
-      this.ws = new WebSocket(this.url)
+      // Append auth token if available (Fall back for network connection where cookies are blocked)
+      let socketUrl = this.url
+      const token = localStorage.getItem('access_token')
+      if (token) {
+        const separator = socketUrl.includes('?') ? '&' : '?'
+        socketUrl = `${socketUrl}${separator}token=${token}`
+      }
+      
+      this.ws = new WebSocket(socketUrl)
 
       this.ws.onopen = () => {
         this.reconnectAttempts = 0
@@ -92,6 +100,15 @@ class WebSocketClient {
 }
 
 // Singleton instance
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws'
-export const wsClient = new WebSocketClient(WS_URL)
+// Singleton instance
+function getWebSocketUrl() {
+  // Debug: Log what we are calculating
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  const host = window.location.host // includes port (e.g., localhost:5173 or 192.168.x.x:5173)
+  const url = `${protocol}//${host}/ws`
+  console.log('[WebSocket] Connecting to:', url)
+  return url
+}
+
+export const wsClient = new WebSocketClient(getWebSocketUrl())
 

@@ -23,12 +23,25 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Cookie expired or invalid, redirect to login
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          // Cookie expired, invalid, or forbidden (expired token) -> redirect to login
+          localStorage.removeItem('access_token') // Clear fallback token too
           window.location.href = '/login'
         }
         return Promise.reject(error)
       }
+    )
+
+    // Request interceptor for Token Fallback
+    this.client.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('access_token')
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`
+            }
+            return config
+        },
+        (error) => Promise.reject(error)
     )
   }
 
@@ -42,7 +55,7 @@ class ApiClient {
     return data
   }
 
-  async verifyOTP(phone: string, otp: string): Promise<{ user: User; message: string }> {
+  async verifyOTP(phone: string, otp: string): Promise<{ user: User; message: string; access_token?: string }> {
     if (USE_MOCK_DATA) {
       await delay(800)
       // Determine role based on phone number for testing
@@ -53,23 +66,32 @@ class ApiClient {
         role = 'reseller'
       }
       const user = { ...mockUser, phone, role }
-      return { user, message: 'Login successful' }
+      return { user, message: 'Login successful', access_token: 'mock-token' }
     }
     const { data } = await this.client.post('/auth/verify', { phone, otp })
+    if (data.access_token) {
+        localStorage.setItem('access_token', data.access_token)
+    }
     return data
   }
 
-  async loginWithPassword(phone: string, password: string): Promise<{ user: User; message: string }> {
+  async loginWithPassword(phone: string, password: string): Promise<{ user: User; message: string; access_token?: string }> {
     const { data } = await this.client.post('/auth/login', { phone, password })
+    if (data.access_token) {
+        localStorage.setItem('access_token', data.access_token)
+    }
     return data
   }
 
   async signup(name: string, email: string | undefined, phone: string, password: string): Promise<{ user: User; message: string }> {
     const { data } = await this.client.post('/auth/signup', { name, email, phone, password })
+    // Signup usually doesn't return token immediately in this flow (requires login), 
+    // but if it did we would store it here.
     return data
   }
 
   async logout(): Promise<{ message: string }> {
+    localStorage.removeItem('access_token')
     const { data } = await this.client.post('/auth/logout')
     return data
   }
@@ -149,7 +171,7 @@ class ApiClient {
     if (USE_MOCK_DATA) {
       return mockApiResponses.plans()
     }
-    const { data } = await this.client.get('/plans')
+    const { data } = await this.client.get('/plans/')
     
     // Transform backend format to frontend format
     return data.map((plan: any) => ({
@@ -394,7 +416,7 @@ class ApiClient {
     }
     // If no ID passed, try to get current tenant from hostname or context
     // For admin/reseller, they might fetch specific tenants
-    const url = tenantId ? `/tenants/${tenantId}` : '/tenant' 
+    const url = tenantId ? `/tenants/${tenantId}` : '/tenants/' 
     // Note: backend 'read_tenant' endpoint is /tenants/{id}. 
     // We might need a way to get "current" tenant. 
     // For now, let's assume we are acting as admin listing tenants.
@@ -405,7 +427,7 @@ class ApiClient {
   }
 
   async getTenants(skip = 0, limit = 100): Promise<Tenant[]> {
-    const { data } = await this.client.get('/tenants', { params: { skip, limit } })
+    const { data } = await this.client.get('/tenants/', { params: { skip, limit } })
     return data.map(this.mapTenantResponse)
   }
 

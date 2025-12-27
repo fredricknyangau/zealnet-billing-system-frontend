@@ -66,10 +66,26 @@ export const CustomerDashboard: React.FC = () => {
     checkAndRequest()
   }, [requestPermission])
   // Listen for real-time subscription updates
-  const wsUrl = user?.id ? `${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/usage/${user.id}` : undefined
+  // Listen for real-time subscription updates
+  // Construct dynamic WebSocket URL to avoid localhost issues on network
+  const { data: wallet } = useQuery({
+    queryKey: ['wallet'],
+    queryFn: () => api.getWalletBalance(),
+  })
+
+  // Listen for real-time subscription updates
+  // Construct dynamic WebSocket URL to avoid localhost issues on network
+  const getWsUrl = () => {
+    if (!user?.id) return undefined
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.host
+    return `${protocol}//${host}/ws/usage/${user.id}`
+  }
+  const wsUrl = getWsUrl()
   
   useWebSocket('subscription_update', (data: { lowBalance?: boolean; expiringSoon?: boolean; timeRemaining?: string }) => {
     queryClient.invalidateQueries({ queryKey: ['subscription'] })
+    queryClient.invalidateQueries({ queryKey: ['wallet'] })
     if (data.lowBalance) {
       showNotification('Low Balance Warning', {
         body: 'Your WiFi balance is running low. Consider topping up.',
@@ -87,6 +103,7 @@ export const CustomerDashboard: React.FC = () => {
     queryKey: ['subscription'],
     queryFn: () => api.getSubscription(),
   })
+
 
   const { data: plans } = useQuery({
     queryKey: ['plans'],
@@ -225,7 +242,7 @@ export const CustomerDashboard: React.FC = () => {
               <div className="flex items-center gap-3">
                  <div className="flex flex-col items-end mr-2">
                     <span className="text-xs text-muted-foreground">Wallet Balance</span>
-                    <span className="font-bold text-primary">{formatCurrency(user?.balance || 0, 'KES')}</span>
+                    <span className="font-bold text-primary">{formatCurrency(wallet?.balance || user?.balance || 0, 'KES')}</span>
                  </div>
                  <Button
                     variant="ghost"
