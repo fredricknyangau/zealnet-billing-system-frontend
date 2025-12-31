@@ -18,16 +18,16 @@ type AuthMethod = 'password' | 'otp'
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const setAuth = useAuthStore(state => state.setAuth)  // Use selector instead of destructuring
-  
+
   // Auth method selection
   const [authMethod, setAuthMethod] = useState<AuthMethod>('password')
-  
+
   // Form state
   const [phoneNumber, setPhoneNumber] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  
+
   // OTP state
   const [showOtpInput, setShowOtpInput] = useState(false)
   const [otp, setOtp] = useState('')
@@ -49,8 +49,8 @@ export const LoginPage: React.FC = () => {
         },
       })
       // Redirect based on user role
-      const redirectPath = data.user.role === 'admin' ? '/admin' 
-        : data.user.role === 'reseller' ? '/reseller' 
+      const redirectPath = data.user.role === 'admin' ? '/admin'
+        : data.user.role === 'reseller' ? '/reseller'
         : '/dashboard'
       navigate(redirectPath)
     },
@@ -95,8 +95,8 @@ export const LoginPage: React.FC = () => {
         },
       })
       // Redirect based on user role
-      const redirectPath = data.user.role === 'admin' ? '/admin' 
-        : data.user.role === 'reseller' ? '/reseller' 
+      const redirectPath = data.user.role === 'admin' ? '/admin'
+        : data.user.role === 'reseller' ? '/reseller'
         : '/dashboard'
       navigate(redirectPath)
     },
@@ -108,7 +108,7 @@ export const LoginPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!phoneNumber.trim()) {
       toast.error('Please enter your phone number')
       return
@@ -146,7 +146,7 @@ export const LoginPage: React.FC = () => {
                 <Shield className="h-10 w-10 text-primary animate-pulse" />
               </div>
             </div>
-            
+
             <div>
               <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
                 Verify Your Phone
@@ -224,7 +224,7 @@ export const LoginPage: React.FC = () => {
 
   // Main Login Screen
   return (
-    <AuthLayout title="Welcome Back">
+    <AuthLayout title="">
       <AuthCard>
         <div className="text-center mb-8">
           {/* Welcome Animation */}
@@ -247,7 +247,7 @@ export const LoginPage: React.FC = () => {
               authMethod === 'password' ? 'left-1.5' : 'left-[calc(50%+0.25rem)]'
             }`}
           />
-          
+
           <button
             type="button"
             onClick={() => setAuthMethod('password')}
@@ -361,7 +361,7 @@ export const LoginPage: React.FC = () => {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
         }

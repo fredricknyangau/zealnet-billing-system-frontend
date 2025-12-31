@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  CheckCircle2, 
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
   XCircle,
   Loader2,
   Sparkles
@@ -137,7 +137,7 @@ export const SignupPage: React.FC = () => {
   }
 
   return (
-    <AuthLayout title="Create Your Account">
+    <AuthLayout title="">
       <AuthCard>
         <div className="text-center mb-8">
           {/* Icon */}
@@ -149,7 +149,7 @@ export const SignupPage: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <h1 className="text-3xl font-bold mb-2 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
             Create Your Account
           </h1>
@@ -220,7 +220,7 @@ export const SignupPage: React.FC = () => {
               }
               required
             />
-            
+
             {/* Password Strength Indicator */}
             {formData.password && (
               <div className="space-y-2 animate-fade-in">
@@ -234,7 +234,7 @@ export const SignupPage: React.FC = () => {
                     {passwordStrength.label}
                   </span>
                 </div>
-                
+
                 {/* Strength bars */}
                 <div className="flex gap-1.5">
                   {[1, 2, 3, 4, 5].map((level) => (
@@ -251,7 +251,7 @@ export const SignupPage: React.FC = () => {
                     />
                   ))}
                 </div>
-                
+
                 {/* Requirements checklist */}
                 <div className="text-xs space-y-1.5 pt-2">
                   <div className={`flex items-center gap-2 transition-colors ${
@@ -363,7 +363,7 @@ export const SignupPage: React.FC = () => {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
         }
