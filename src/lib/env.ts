@@ -84,6 +84,23 @@ class EnvironmentValidator {
   public getMode(): string {
     return this.env.MODE
   }
+
+  public getWsUrl(): string {
+    const apiUrl = this.getApiUrl()
+    
+    // Handle relative URLs (e.g. /api)
+    if (apiUrl.startsWith('/')) {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const host = window.location.host
+        return `${protocol}//${host}${apiUrl}`
+    }
+
+    // Handle absolute URLs
+    // Replace http:// with ws:// and https:// with wss://
+    return apiUrl
+      .replace(/^http:/, 'ws:')
+      .replace(/^https:/, 'wss:')
+  }
 }
 
 // Export singleton instance
@@ -91,5 +108,6 @@ export const env = EnvironmentValidator.getInstance()
 
 // Export helper functions
 export const getApiUrl = () => env.getApiUrl()
+export const getWsUrl = () => env.getWsUrl()
 export const isDevelopment = () => env.isDevelopment()
 export const isProduction = () => env.isProduction()

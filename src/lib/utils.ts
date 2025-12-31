@@ -37,6 +37,44 @@ export function maskPhoneNumber(phone: string): string {
   return phone.substring(0, phone.length - 4) + '****'
 }
 
+// Date formatting utilities
+export function formatDateTime(dateStr: string | Date | undefined | null): string {
+  if (!dateStr) return '-'
+  
+  // Ensure we treat naive strings as UTC
+  const date = parseToUTC(dateStr)
+  
+  return new Intl.DateTimeFormat('default', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+export function formatRelativeTime(dateStr: string | Date | undefined | null): string {
+  if (!dateStr) return '-'
+  const date = parseToUTC(dateStr)
+  const now = new Date()
+  const diffInSeconds = Math.floor((date.getTime() - now.getTime()) / 1000)
+  
+  if (diffInSeconds < 0) return 'Expired'
+  return formatDuration(diffInSeconds)
+}
+
+// Helper to ensure naive strings from backend are treated as UTC
+export function parseToUTC(dateInput: string | Date): Date {
+  if (dateInput instanceof Date) return dateInput
+  
+  let dateStr = dateInput
+  // If string looks like ISO but has no Z or offset, append Z
+  if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(dateStr)) {
+    dateStr += 'Z'
+  }
+  return new Date(dateStr)
+}
+
 export function extractErrorMessage(error: any, defaultMessage: string = 'An error occurred'): string {
   if (typeof error === 'string') return error
   // Handle Axios/Network errors

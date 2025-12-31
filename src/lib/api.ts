@@ -24,9 +24,16 @@ class ApiClient {
       (response) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401 || error.response?.status === 403) {
-          // Cookie expired, invalid, or forbidden (expired token) -> redirect to login
-          localStorage.removeItem('access_token') // Clear fallback token too
-          window.location.href = '/login'
+          // Only redirect to login if NOT on a public page
+          const publicPages = ['/portal', '/login', '/signup', '/forgot-password', '/reset-password', '/', '/about', '/contact', '/help', '/careers', '/privacy', '/terms', '/cookies']
+          const currentPath = window.location.pathname
+          const isPublicPage = publicPages.some(page => currentPath === page || currentPath.startsWith(page))
+          
+          if (!isPublicPage) {
+            // Cookie expired, invalid, or forbidden (expired token) -> redirect to login
+            localStorage.removeItem('access_token') // Clear fallback token too
+            window.location.href = '/login'
+          }
         }
         return Promise.reject(error)
       }

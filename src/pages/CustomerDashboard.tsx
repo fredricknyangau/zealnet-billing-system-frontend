@@ -20,7 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/Badge'
 import { SkeletonText } from '@/components/ui/Skeleton'
 import { Modal } from '@/components/ui/Modal'
-import { formatCurrency, formatBytes, formatDuration, maskMacAddress, maskPhoneNumber } from '@/lib/utils'
+import { getWsUrl } from '@/lib/env'
+import { formatCurrency, formatBytes, formatDuration, maskMacAddress, maskPhoneNumber, formatDateTime } from '@/lib/utils'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useWebSocket } from '@/hooks/useWebSocket'
@@ -75,13 +76,14 @@ export const CustomerDashboard: React.FC = () => {
 
   // Listen for real-time subscription updates
   // Construct dynamic WebSocket URL to avoid localhost issues on network
-  const getWsUrl = () => {
+  // Construct dynamic WebSocket URL using environment configuration
+  const getWebSocketUrl = () => {
     if (!user?.id) return undefined
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    return `${protocol}//${host}/ws/usage/${user.id}`
+    const baseWsUrl = getWsUrl()
+    // Append the specific endpoint path
+    return `${baseWsUrl}/ws/usage/${user.id}`
   }
-  const wsUrl = getWsUrl()
+  const wsUrl = getWebSocketUrl()
   
   useWebSocket('subscription_update', (data: { lowBalance?: boolean; expiringSoon?: boolean; timeRemaining?: string }) => {
     queryClient.invalidateQueries({ queryKey: ['subscription'] })
@@ -444,7 +446,7 @@ export const CustomerDashboard: React.FC = () => {
                   >
                     <div>
                       <p className="font-medium text-foreground">
-                        {new Date(session.startTime).toLocaleString()}
+                        {formatDateTime(session.startTime)}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         Duration: {formatDuration(session.duration)} •{' '}

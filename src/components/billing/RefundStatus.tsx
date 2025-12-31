@@ -1,5 +1,6 @@
 import React from 'react'
 import { Check, Clock, X, AlertCircle } from 'lucide-react'
+import { formatDateTime } from '@/lib/utils'
 
 interface RefundStatusProps {
   refund: {
@@ -86,7 +87,7 @@ export const RefundStatus: React.FC<RefundStatusProps> = ({ refund }) => {
           <div className="flex-1">
             <p className="text-sm font-medium">Request Submitted</p>
             <p className="text-xs text-muted-foreground">
-              {new Date(refund.createdAt).toLocaleString()}
+              {formatDateTime(refund.createdAt)}
             </p>
           </div>
         </div>
@@ -101,7 +102,7 @@ export const RefundStatus: React.FC<RefundStatusProps> = ({ refund }) => {
             <div className="flex-1">
               <p className="text-sm font-medium">Status Updated</p>
               <p className="text-xs text-muted-foreground">
-                {new Date(refund.updatedAt).toLocaleString()}
+                {formatDateTime(refund.updatedAt)}
               </p>
             </div>
           </div>

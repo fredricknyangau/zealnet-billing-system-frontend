@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { AlertCircle, MapPin, Smartphone, Clock, X } from 'lucide-react'
+import { formatDateTime } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -90,7 +91,7 @@ export const LoginAlert: React.FC<LoginAlertProps> = ({ alert, onDismiss, onRevo
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-3 w-3" />
-                      <span>{alert.timestamp.toLocaleString()}</span>
+                      <span>{formatDateTime(alert.timestamp)}</span>
                     </div>
                   </div>
 

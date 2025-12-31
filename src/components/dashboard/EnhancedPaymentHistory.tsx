@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, CreditCard, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { api } from '@/lib/api';
+import { formatDateTime } from '@/lib/utils';
 
 interface Payment {
   id: string;
@@ -154,7 +155,7 @@ export function EnhancedPaymentHistory() {
               {payments.map((payment) => (
                 <TableRow key={payment.id}>
                   <TableCell className="text-sm">
-                    {new Date(payment.created_at).toLocaleString()}
+                    {formatDateTime(payment.created_at)}
                   </TableCell>
                   <TableCell className="font-semibold">
                     KES {payment.amount.toLocaleString()}
